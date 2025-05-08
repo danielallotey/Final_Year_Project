@@ -1,0 +1,36 @@
+.dashboard-layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+.main-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.content-area {
+  display: flex;
+  flex: 1;
+  overflow: auto;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  transition: width 0.3s ease;
+  overflow: auto;
+}
+
+.main-content.full-width {
+  width: 100%;
+}
+
+.admin-panel {
+  width: 300px;
+  background-color: #fff;
+  border-left: 1px solid #e0e0e0;
+  transition: width 0.3s ease;
+}
