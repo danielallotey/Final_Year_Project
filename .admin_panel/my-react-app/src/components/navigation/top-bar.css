@@ -1,0 +1,85 @@
+.top-bar {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #fff;
+}
+
+.search-container {
+  flex: 1;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  max-width: 300px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  margin-left: 8px;
+  width: 100%;
+}
+
+.top-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.add-new-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  padding: 8px;
+}
+
+.toggle-admin-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  padding: 8px;
+  transform: rotate(-90deg);
+  transition: transform 0.3s ease;
+}
+
+.toggle-admin-button.active {
+  transform: rotate(90deg);
+}
