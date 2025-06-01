@@ -1,4 +1,8 @@
 import "./top-bar.css";
+import { signOut } from "firebase/auth";
+import { auth } from "../../firebase";
+import { useNavigate } from "react-router-dom";
+
 import {
   SearchIcon,
   ChevronDownIcon,
@@ -7,6 +11,17 @@ import {
 } from "../icons/icons";
 
 const TopBar = ({ onToggleAdminPanel, isAdminPanelOpen }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate("/admin-login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
   return (
     <div className="top-bar">
       <div className="search-container">
@@ -22,7 +37,7 @@ const TopBar = ({ onToggleAdminPanel, isAdminPanelOpen }) => {
         <button className="add-new-button">
           <PlusIcon /> Add New
         </button>
-        <button className="icon-button">
+        <button className="icon-button" onClick={handleLogout} title="Logout">
           <LogOutIcon />
         </button>
         <button
