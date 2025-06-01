@@ -4,7 +4,7 @@ import "../../App.css";
 import logo from "../../assets/logo.png";
 import comlink from "../../assets/logo-comlink.png";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebase";
+import { auth } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 
 //Authentication Function

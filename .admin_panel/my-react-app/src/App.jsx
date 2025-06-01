@@ -1,9 +1,9 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Login from "../pages/Login";
-import UserDashboard from "../pages/user-dashboard/user-dashboard";
-import BusinessDashboard from "../pages/business-dashboard/business-dashboard";
-import DashboardLayout from "../components/layouts/dashboard-layout";
+import Login from "./pages/auth/admin-login";
+import UserDashboard from "./pages/user-dashboard/user-dashboard";
+import BusinessDashboard from "./pages/business-dashboard/business-dashboard";
+import DashboardLayout from "./components/layouts/dashboard-layout";
 
 const AppRoutes = () => {
   return (
