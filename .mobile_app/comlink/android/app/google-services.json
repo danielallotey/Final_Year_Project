@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "270279405346",
+    "project_id": "final-year-project---comlink",
+    "storage_bucket": "final-year-project---comlink.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:270279405346:android:cd820b06aca1d6255e3f7b",
+        "android_client_info": {
+          "package_name": "com.example.comlink"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBotnpxCoMi6W5F1be7gG0x-v1DzbcMIoU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
