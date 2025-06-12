@@ -3,9 +3,9 @@ import 'package:adobe_xd/pinned.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ServiceNeededInput extends StatelessWidget {
-  ServiceNeededInput({
-    Key? key,
-  }) : super(key: key);
+  const ServiceNeededInput({
+    super.key,
+  });
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -62,5 +62,6 @@ class ServiceNeededInput extends StatelessWidget {
   }
 }
 
+// ignore: constant_identifier_names
 const String _svg_cqr =
     '<svg viewBox="278.0 14.0 9.2 18.0" ><path transform="translate(270.59, 11.0)" d="M 12 5.829999923706055 L 15.17000007629395 9 L 16.57999992370605 7.590000152587891 L 12 3 L 7.409999847412109 7.590000152587891 L 8.829999923706055 9 L 12 5.829999923706055 Z M 12 18.17000007629395 L 8.829999923706055 15 L 7.420000076293945 16.40999984741211 L 12 21 L 16.59000015258789 16.40999984741211 L 15.17000007629395 15 L 12 18.17000007629395 Z" fill="#95989a" stroke="none" stroke-width="1" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:adobe_xd/pinned.dart';
 
 class ProductCard extends StatelessWidget {
-  ProductCard({
-    Key? key,
-  }) : super(key: key);
+  const ProductCard({
+    super.key
+  });
   @override
   Widget build(BuildContext context) {
     return Stack(

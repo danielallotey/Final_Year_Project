@@ -3,9 +3,9 @@ import 'package:adobe_xd/pinned.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class BusinessTopBar extends StatelessWidget {
-  BusinessTopBar({
-    Key? key,
-  }) : super(key: key);
+  const BusinessTopBar({
+    super.key
+  });
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -92,9 +92,12 @@ class BusinessTopBar extends StatelessWidget {
   }
 }
 
+// ignore: constant_identifier_names
 const String _svg_g14lct =
     '<svg viewBox="322.0 27.0 30.0 1.0" ><path transform="translate(322.0, 27.0)" d="M 0 0 L 30 0" fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
+// ignore: constant_identifier_names
 const String _svg_ntwit =
     '<svg viewBox="322.0 37.0 30.0 1.0" ><path transform="translate(322.0, 37.0)" d="M 0 0 L 30 0" fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
+// ignore: constant_identifier_names
 const String _svg_hcseef =
     '<svg viewBox="322.0 47.0 30.0 1.0" ><path transform="translate(322.0, 47.0)" d="M 0 0 L 30 0" fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
