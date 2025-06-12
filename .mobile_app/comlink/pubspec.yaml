@@ -38,6 +38,7 @@ dependencies:
   adobe_xd:
   flutter_native_splash:
   google_fonts:
+  flutter_svg:
 
 dev_dependencies:
   flutter_test:
@@ -62,9 +63,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  #assets:
-  #- assets/images/
-  #- assets/google_fonts
+  assets:
+    - assets/images/
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -77,13 +78,53 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/google_fonts/Poppins-Regular.ttf
+        - asset: assets/google_fonts/Poppins-Italic.ttf
+          style: italic
+        - asset: assets/google_fonts/Poppins-Thin.ttf
+          weight: 100
+        - asset: assets/google_fonts/Poppins-ThinItalic.ttf
+          weight: 100
+          style: italic
+        - asset: assets/google_fonts/Poppins-ExtraLight.ttf
+          weight: 200
+        - asset: assets/google_fonts/Poppins-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: assets/google_fonts/Poppins-Light.ttf
+          weight: 300
+        - asset: assets/google_fonts/Poppins-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: assets/google_fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/google_fonts/Poppins-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/google_fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/google_fonts/Poppins-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/google_fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/google_fonts/Poppins-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/google_fonts/Poppins-ExtraBold.ttf
+          weight: 800
+        - asset: assets/google_fonts/Poppins-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
+        - asset: assets/google_fonts/Poppins-Black.ttf
+          weight: 900
+        - asset: assets/google_fonts/Poppins-BlackItalic.ttf
+          weight: 900
+          style: italic
+
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf

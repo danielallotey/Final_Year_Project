@@ -1,3 +1,4 @@
+import { SUPER_ADMIN_UID } from "./config";
 import React, { useState } from "react";
 import "../../App.css";
 import logo from "../../assets/logo.png";
@@ -15,8 +16,18 @@ function AdminLogin() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate("/user-dashboard");
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      if (user.uid === SUPER_ADMIN_UID) {
+        navigate("/user-dashboard");
+      } else {
+        setError("Access denied.");
+      }
     } catch {
       setError("Incorrect login details");
     }
