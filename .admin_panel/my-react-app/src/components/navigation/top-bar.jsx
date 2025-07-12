@@ -8,6 +8,7 @@ import {
   ChevronDownIcon,
   PlusIcon,
   LogOutIcon,
+  SettingsIcon
 } from "../icons/icons";
 
 const TopBar = ({ onToggleAdminPanel, isAdminPanelOpen }) => {
@@ -34,9 +35,6 @@ const TopBar = ({ onToggleAdminPanel, isAdminPanelOpen }) => {
         <div className="filter-button">
           Filter <ChevronDownIcon />
         </div>
-        <button className="add-new-button">
-          <PlusIcon /> Add New
-        </button>
         <button className="icon-button" onClick={handleLogout} title="Logout">
           <LogOutIcon />
         </button>
@@ -44,7 +42,7 @@ const TopBar = ({ onToggleAdminPanel, isAdminPanelOpen }) => {
           className={`toggle-admin-button ${isAdminPanelOpen ? "active" : ""}`}
           onClick={onToggleAdminPanel}
         >
-          <ChevronDownIcon />
+          <SettingsIcon />
         </button>
       </div>
     </div>
