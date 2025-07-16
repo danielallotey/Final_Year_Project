@@ -1,107 +1,133 @@
 import 'package:flutter/material.dart';
-import 'package:adobe_xd/pinned.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'rtbtoggle.dart';
 
-class RegularTopBar extends StatelessWidget {
-  const RegularTopBar({
-    super.key
-  });
+class RegularTopBar extends StatefulWidget {
+  const RegularTopBar({super.key});
+
+  @override
+  State<RegularTopBar> createState() => _RegularTopBarState();
+}
+
+class _RegularTopBarState extends State<RegularTopBar> {
+  bool _isMenuOpen = false;
+
+  void _toggleMenu() {
+    setState(() {
+      _isMenuOpen = !_isMenuOpen;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: <Widget>[
-        Pinned.fromPins(
-          Pin(start: 0.0, end: 0.0),
-          Pin(size: 65.0, start: 0.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xffffffff),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0x33000000),
-                  offset: Offset(0, 3),
-                  blurRadius: 6,
-                ),
-              ],
-            ),
-          ),
-        ),
-        Pinned.fromPins(
-          Pin(size: 119.0, start: 20.0),
-          Pin(size: 35.0, start: 21.0),
-          child: Text.rich(
-            TextSpan(
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 25,
-                color: const Color(0xff000000),
-                letterSpacing: 1,
-              ),
-              children: [
-                TextSpan(
-                  text: 'Com',
-                ),
-                TextSpan(
-                  text: 'Link',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
+      children: [
+        /// Top Bar + Page Content
+        Column(
+          children: [
+            Container(
+              height: 65,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0x33000000),
+                    offset: Offset(0, 3),
+                    blurRadius: 6,
                   ),
-                ),
-              ],
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // App title
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Com',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 25,
+                              color: Colors.black,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                          TextSpan(
+                            text: 'Link',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Hamburger icon
+                  IconButton(
+                    icon: SvgPicture.string(_hamburgerIcon),
+                    onPressed: _toggleMenu,
+                  ),
+                ],
+              ),
             ),
-            textHeightBehavior:
-                TextHeightBehavior(applyHeightToFirstAscent: false),
-            softWrap: false,
-          ),
+            // Placeholder for body content
+            Expanded(
+              child: Center(child: Text('Main content goes here')),
+            ),
+          ],
         ),
-        Pinned.fromPins(
-          Pin(size: 30.0, end: 23.0),
-          Pin(size: 20.0, middle: 0.6),
-          child:
-              // Adobe XD layer: 'open' (group)
-              Stack(
-            children: <Widget>[
-              Pinned.fromPins(
-                Pin(size: 30.0, end: 0.0),
-                Pin(size: 1.0, middle: 0.0),
-                child: SvgPicture.string(
-                  _svg_g14lct,
-                  allowDrawingOutsideViewBox: true,
-                  fit: BoxFit.fill,
-                ),
+
+        /// Overlay Menu (Full screen top menu)
+        if (_isMenuOpen)
+          Positioned.fill(
+            child: Material(
+              color: Colors.black.withAlpha(102),
+              child: Stack(
+                children: [
+                  RtbToggle(),
+
+                  // Close button on top right
+                  Positioned(
+                    top: 20,
+                    right: 23,
+                    child: GestureDetector(
+                      onTap: _toggleMenu,
+                      child: SvgPicture.string(_svg_zqs),
+                    ),
+                  ),
+                ],
               ),
-              Pinned.fromPins(
-                Pin(size: 30.0, end: 0.0),
-                Pin(size: 1.0, middle: 0.5263),
-                child: SvgPicture.string(
-                  _svg_ntwit,
-                  allowDrawingOutsideViewBox: true,
-                  fit: BoxFit.fill,
-                ),
-              ),
-              Pinned.fromPins(
-                Pin(size: 30.0, end: 0.0),
-                Pin(size: 1.0, middle: 1.0526),
-                child: SvgPicture.string(
-                  _svg_hcseef,
-                  allowDrawingOutsideViewBox: true,
-                  fit: BoxFit.fill,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
       ],
     );
   }
 }
 
+// SVGs
+const String _hamburgerIcon = '''
+<svg viewBox="0 0 30 18" width="30" height="18" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#000" stroke-width="3">
+    <path d="M0 1.5H30"/>
+    <path d="M0 9H30"/>
+    <path d="M0 16.5H30"/>
+  </g>
+</svg>
+''';
 // ignore: constant_identifier_names
-const String _svg_g14lct =
-    '<svg viewBox="322.0 27.0 30.0 1.0" ><path transform="translate(322.0, 27.0)" d="M 0 0 L 30 0" fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
-// ignore: constant_identifier_names
-const String _svg_ntwit =
-    '<svg viewBox="322.0 37.0 30.0 1.0" ><path transform="translate(322.0, 37.0)" d="M 0 0 L 30 0" fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
-// ignore: constant_identifier_names
-const String _svg_hcseef =
-    '<svg viewBox="322.0 47.0 30.0 1.0" ><path transform="translate(322.0, 47.0)" d="M 0 0 L 30 0" fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
+const String _svg_zqs = '''
+<svg viewBox="322.0 22.0 30.0 30.0">
+<path transform="translate(317.0, 17.0)"
+d="M 35 8.021 L 31.978 5.000 L 20.000 16.979 L 8.021 5.000 L 5.000 8.021 
+L 16.979 20.000 L 5.000 31.979 L 8.021 35.000 L 20.000 23.021 
+L 31.979 35.000 L 35.000 31.979 L 23.021 20.000 L 35.000 8.021 Z"
+fill="#ffffff"/>
+</svg>
+''';
