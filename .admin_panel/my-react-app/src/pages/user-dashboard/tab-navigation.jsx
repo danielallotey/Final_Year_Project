@@ -1,16 +1,18 @@
+"use client";
+
 import "./tab-navigation.css";
 
-const TabNavigation = ({ tabs, activeTab }) => {
+const TabNavigation = ({ tabs, activeTab, onTabChange }) => {
   return (
     <div className="tab-navigation">
       {tabs.map((tab) => (
-        <a
+        <button
           key={tab}
-          href={`/dashboard/${tab.toLowerCase()}`}
+          onClick={() => onTabChange(tab)}
           className={`tab ${tab === activeTab ? "active" : ""}`}
         >
           {tab}
-        </a>
+        </button>
       ))}
     </div>
   );

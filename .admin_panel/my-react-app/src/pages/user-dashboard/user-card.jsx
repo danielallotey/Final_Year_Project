@@ -1,6 +1,14 @@
-import "./user-card.css";
+const UserCard = ({ id, name, community, contact, image, onEdit }) => {
+  const handleEdit = () => {
+    onEdit({
+      id,
+      name,
+      community,
+      contact,
+      image,
+    });
+  };
 
-const UserCard = ({ id, name, community, contact, image }) => {
   return (
     <div className="user-card">
       <div className="user-info">
@@ -12,7 +20,6 @@ const UserCard = ({ id, name, community, contact, image }) => {
           <div className="user-id">
             User ID: <span>{id}</span>
           </div>
-
           <div className="user-meta">
             <div className="meta-item">
               <div className="meta-label">Community</div>
@@ -26,7 +33,9 @@ const UserCard = ({ id, name, community, contact, image }) => {
         </div>
       </div>
       <div className="user-actions">
-        <button className="edit-button">Edit Details</button>
+        <button className="edit-button" onClick={handleEdit}>
+          Edit Details
+        </button>
         <button className="view-button">View Profile</button>
       </div>
     </div>
