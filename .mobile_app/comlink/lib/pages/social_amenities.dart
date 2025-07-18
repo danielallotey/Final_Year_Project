@@ -1,398 +1,335 @@
 import 'package:flutter/material.dart';
-import 'package:adobe_xd/pinned.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../pages/product_page.dart';
-import 'package:adobe_xd/page_link.dart';
 import '../components/regular_top_bar.dart';
 
-class SocialAmenities extends StatelessWidget {
-  const SocialAmenities({
-    super.key,
-  });
+class SocialAmenities extends StatefulWidget {
+  const SocialAmenities({super.key});
+
+  @override
+  State<SocialAmenities> createState() => _SocialAmenitiesState();
+}
+
+class _SocialAmenitiesState extends State<SocialAmenities> {
+  final TextEditingController _searchController = TextEditingController();
+  String _selectedCategory = '';
+
+  static const List<String> _categories = [
+    'Plumber',
+    'Electrician',
+    'Painter',
+    'Carpenter'
+  ];
+
+  // Sample data - replace with actual data source
+  final List<Map<String, dynamic>> _serviceProviders = [
+    {
+      'name': 'John Doe',
+      'service': 'Electrician',
+      'distance': '3.5km away',
+      'rating': 4.5,
+    },
+    {
+      'name': 'Jane Smith',
+      'service': 'Plumber',
+      'distance': '2.1km away',
+      'rating': 4.8,
+    },
+    {
+      'name': 'Mike Wilson',
+      'service': 'Painter',
+      'distance': '1.8km away',
+      'rating': 4.2,
+    },
+    {
+      'name': 'Sarah Johnson',
+      'service': 'Carpenter',
+      'distance': '4.2km away',
+      'rating': 4.7,
+    },
+    {
+      'name': 'David Brown',
+      'service': 'Electrician',
+      'distance': '5.0km away',
+      'rating': 4.1,
+    },
+  ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, dynamic>> get _filteredProviders {
+    return _serviceProviders.where((provider) {
+      final matchesSearch = _searchController.text.isEmpty ||
+          provider['name'].toString().toLowerCase().contains(_searchController.text.toLowerCase()) ||
+          provider['service'].toString().toLowerCase().contains(_searchController.text.toLowerCase());
+
+      final matchesCategory = _selectedCategory.isEmpty ||
+          provider['service'] == _selectedCategory;
+
+      return matchesSearch && matchesCategory;
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffffffff),
-      body: Stack(
-        children: <Widget>[
-          // Adobe XD layer: 'background image' (shape)
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xff3583bd),
-              border: Border.all(width: 1.0, color: const Color(0xff707070)),
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 20.0, end: 20.0),
-            Pin(size: 727.0, end: -162.0),
-            child:
-                // Adobe XD layer: 'Results' (group)
-                PageLink(
-              links: [
-                PageLinkInfo(
-                  ease: Curves.easeInOutExpo,
-                  duration: 1.0,
-                  pageBuilder: () => ProductPage(),
-                ),
-              ],
-              child: SingleChildScrollView(
-                primary: false,
-                child: SizedBox(
-                  width: 335.0,
-                  height: 945.0,
-                  child: Stack(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, -218.0),
-                        child:
-                            // Adobe XD layer: 'Product Card' (grid)
-                            SingleChildScrollView(
-                          primary: false,
-                          child: Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 20,
-                            runSpacing: 20,
-                            children: [{}, {}, {}].map((itemData) {
-                              return SizedBox(
-                                width: 335.0,
-                                height: 300.0,
-                                child:
-                                    // Adobe XD layer: 'Product Card' (group)
-                                    Stack(
-                                  children: <Widget>[
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xffffffff),
-                                        border: Border.all(
-                                            width: 0.5,
-                                            color: const Color(0xff707070)),
-                                      ),
-                                    ),
-                                    Pinned.fromPins(
-                                      Pin(start: 18.0, end: 17.0),
-                                      Pin(size: 45.0, end: 20.0),
-                                      child:
-                                          // Adobe XD layer: 'Call Button' (group)
-                                          Stack(
-                                        children: <Widget>[
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xfff64743),
-                                              borderRadius:
-                                                  BorderRadius.circular(6.0),
-                                            ),
-                                          ),
-                                          Align(
-                                            alignment: Alignment(0.032, 0.003),
-                                            child: SizedBox(
-                                              width: 207.0,
-                                              height: 21.0,
-                                              child: Stack(
-                                                children: <Widget>[
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsets.fromLTRB(
-                                                            26.0,
-                                                            0.0,
-                                                            0.0,
-                                                            0.1),
-                                                    child: SizedBox.expand(
-                                                        child: Text(
-                                                      'Call (+233) 840-141-913',
-                                                      style: TextStyle(
-                                                        fontFamily: 'Poppins',
-                                                        fontSize: 15,
-                                                        color: const Color(
-                                                            0xffffffff),
-                                                        letterSpacing: 0.3,
-                                                      ),
-                                                      softWrap: false,
-                                                    )),
-                                                  ),
-                                                  Pinned.fromPins(
-                                                    Pin(size: 21.1, start: 0.0),
-                                                    Pin(start: 0.0, end: 0.0),
-                                                    child:
-                                                        // Adobe XD layer: 'ic_call_24px' (shape)
-                                                        SvgPicture.string(
-                                                      _svg_m87zlb,
-                                                      allowDrawingOutsideViewBox:
-                                                          true,
-                                                      fit: BoxFit.fill,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Pinned.fromPins(
-                                      Pin(size: 134.0, start: 18.0),
-                                      Pin(size: 25.0, middle: 0.7273),
-                                      child: Text(
-                                        'Product Name',
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 18,
-                                          color: const Color(0xff215066),
-                                          letterSpacing: 0.36,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        softWrap: false,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          const RegularTopBar(),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSearchBar(),
+                  const SizedBox(height: 16),
+                  _buildCategories(),
+                  const SizedBox(height: 16),
+                  _buildResultsHeader(),
+                  const SizedBox(height: 8),
+                  Expanded(child: _buildResults()),
+                ],
               ),
             ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 0.0, end: 0.0),
-            Pin(size: 80.0, middle: 0.2008),
-            child:
-                // Adobe XD layer: 'Categories' (group)
-                SingleChildScrollView(
-              primary: false,
-              child: SizedBox(
-                width: 729.0,
-                height: 79.0,
-                child: Stack(
-                  children: <Widget>[
-                    Pinned.fromPins(
-                      Pin(size: 26.0, start: 30.5),
-                      Pin(size: 1.0, end: 0.5),
-                      child:
-                          // Adobe XD layer: 'active line' (shape)
-                          SvgPicture.string(
-                        _svg_rxmoxb,
-                        allowDrawingOutsideViewBox: true,
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(0.0, 0.0, -354.0, 6.0),
-                      child:
-                          // Adobe XD layer: 'Categories' (grid)
-                          SingleChildScrollView(
-                        primary: false,
-                        child: Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 46,
-                          runSpacing: 20,
-                          children: [{}, {}].map((itemData) {
-                            return SizedBox(
-                              width: 335.0,
-                              height: 74.0,
-                              child:
-                                  // Adobe XD layer: 'Categories' (group)
-                                  Stack(
-                                children: <Widget>[
-                                  Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: SizedBox(
-                                      width: 47.0,
-                                      height: 16.0,
-                                      child: Text(
-                                        'Markets',
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 11,
-                                          color: const Color(0xffffffff),
-                                          letterSpacing: 0.44,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        softWrap: false,
-                                      ),
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.topRight,
-                                    child: Container(
-                                      width: 48.0,
-                                      height: 47.0,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xffffffff),
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                      ),
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment(0.322, 1.0),
-                                    child: SizedBox(
-                                      width: 37.0,
-                                      height: 16.0,
-                                      child: Text(
-                                        'Hotels',
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 11,
-                                          color: const Color(0xffffffff),
-                                          letterSpacing: 0.44,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        softWrap: false,
-                                      ),
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment(0.338, -1.0),
-                                    child: Container(
-                                      width: 48.0,
-                                      height: 47.0,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xffffffff),
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                      ),
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment(-0.329, 1.0),
-                                    child: SizedBox(
-                                      width: 43.0,
-                                      height: 16.0,
-                                      child: Text(
-                                        'Church',
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 11,
-                                          color: const Color(0xffffffff),
-                                          letterSpacing: 0.44,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        softWrap: false,
-                                      ),
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment(-0.338, -1.0),
-                                    child: Container(
-                                      width: 48.0,
-                                      height: 47.0,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xffffffff),
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                      ),
-                                    ),
-                                  ),
-                                  Pinned.fromPins(
-                                    Pin(size: 40.0, start: 4.0),
-                                    Pin(size: 16.0, end: 0.0),
-                                    child: Text(
-                                      'School',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontSize: 11,
-                                        color: const Color(0xffffffff),
-                                        letterSpacing: 0.44,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      softWrap: false,
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Container(
-                                      width: 48.0,
-                                      height: 47.0,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xffffffff),
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 20.0, end: 20.0),
-            Pin(size: 42.0, start: 85.0),
-            child:
-                // Adobe XD layer: 'Search' (group)
-                Stack(
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xfffffcfc),
-                    borderRadius: BorderRadius.circular(20.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0x29000000),
-                        offset: Offset(0, 3),
-                        blurRadius: 6,
-                      ),
-                    ],
-                  ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 81.0, start: 39.0),
-                  Pin(size: 15.0, middle: 0.5185),
-                  child: Text(
-                    'Search an Item',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 10,
-                      color: const Color(0xff707070),
-                      letterSpacing: 0.4,
-                      fontWeight: FontWeight.w300,
-                    ),
-                    softWrap: false,
-                  ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 15.3, start: 16.0),
-                  Pin(size: 15.3, middle: 0.4865),
-                  child:
-                      // Adobe XD layer: 'ic_search_24px' (shape)
-                      SvgPicture.string(
-                    _svg_d35vno,
-                    allowDrawingOutsideViewBox: true,
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 0.0, end: 0.0),
-            Pin(size: 65.0, start: 0.0),
-            child:
-                // Adobe XD layer: 'Regular Top Bar' (component)
-                RegularTopBar(),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildSearchBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xfff2f2f2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          SvgPicture.string(
+            _searchIcon,
+            width: 20,
+            height: 20,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              onChanged: (_) => setState(() {}),
+              decoration: const InputDecoration(
+                hintText: 'Search for a service...',
+                hintStyle: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategories() {
+    return SizedBox(
+      height: 40,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _categories.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemBuilder: (context, index) {
+          final category = _categories[index];
+          final isSelected = _selectedCategory == category;
+
+          return ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isSelected
+                  ? const Color(0xfff64743)
+                  : const Color(0xfff2f2f2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              elevation: isSelected ? 2 : 0,
+            ),
+            onPressed: () {
+              setState(() {
+                _selectedCategory = isSelected ? '' : category;
+              });
+            },
+            child: Text(
+              category,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: isSelected ? Colors.white : Colors.black87,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildResultsHeader() {
+    final count = _filteredProviders.length;
+    return Text(
+      '$count service${count != 1 ? 's' : ''} found',
+      style: const TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: Colors.black87,
+      ),
+    );
+  }
+
+  Widget _buildResults() {
+    if (_filteredProviders.isEmpty) {
+      return const Center(
+        child: Text(
+          'No services found',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 16,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: _filteredProviders.length,
+      itemBuilder: (context, index) {
+        return _buildServiceCard(_filteredProviders[index]);
+      },
+    );
+  }
+
+  Widget _buildServiceCard(Map<String, dynamic> provider) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ProductPage(),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: const Color(0xfff2f2f2),
+                child: Icon(
+                  Icons.person,
+                  size: 30,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      provider['name'],
+                      style: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${provider['service']} • ${provider['distance']}',
+                      style: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.star,
+                          size: 16,
+                          color: Colors.amber[600],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          provider['rating'].toString(),
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  // Handle phone call
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Calling ${provider['name']}...'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xff3583bd),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: SvgPicture.string(
+                    _phoneIcon,
+                    width: 20,
+                    height: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
-// ignore: constant_identifier_names
-const String _svg_m87zlb =
-    '<svg viewBox="0.0 0.0 21.1 21.1" ><path transform="translate(-3.0, -3.0)" d="M 7.238787651062012 12.1215877532959 C 8.924933433532715 15.43533611297607 11.64150428771973 18.14019775390625 14.9552526473999 19.83805465698242 L 17.53131103515625 17.26199722290039 C 17.84746360778809 16.94584465026855 18.31583786010742 16.84046173095703 18.72566795349121 16.9809741973877 C 20.0371150970459 17.41421890258789 21.45394515991211 17.64840507507324 22.90590476989746 17.64840507507324 C 23.54991912841797 17.64840507507324 24.07684326171875 18.17532730102539 24.07684326171875 18.81934356689453 L 24.07684326171875 22.90590476989746 C 24.07684326171875 23.54991912841797 23.54991912841797 24.07684326171875 22.90590476989746 24.07684326171875 C 11.9108190536499 24.07684326171875 3 15.16602039337158 3 4.170936107635498 C 3 3.526921272277832 3.526921272277832 3 4.170936107635498 3 L 8.269210815429688 3 C 8.913225173950195 3 9.440146446228027 3.526921272277832 9.440146446228027 4.170936107635498 C 9.440146446228027 5.634605884552002 9.674332618713379 7.03972864151001 10.10757923126221 8.351175308227539 C 10.2363805770874 8.761003494262695 10.1427059173584 9.217667579650879 9.814844131469727 9.545530319213867 L 7.238787651062012 12.1215877532959 Z" fill="#ffffff" stroke="none" stroke-width="1" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
-// ignore: constant_identifier_names
-const String _svg_rxmoxb =
-    '<svg viewBox="10.5 78.5 26.0 1.0" ><path transform="translate(10.5, 78.5)" d="M 0 0 L 26 0" fill="none" stroke="#ffffff" stroke-width="2" stroke-miterlimit="4" stroke-linecap="round" /></svg>';
-// ignore: constant_identifier_names
-const String _svg_d35vno =
-    '<svg viewBox="36.0 33.0 15.3 15.3" ><path transform="translate(33.0, 30.0)" d="M 13.91836643218994 12.60816192626953 L 13.22832489013672 12.60816192626953 L 12.98375415802002 12.37232494354248 C 13.83975315093994 11.37657070159912 14.35510063171387 10.08383560180664 14.35510063171387 8.677550315856934 C 14.35510063171387 5.541795253753662 11.81330490112305 3 8.677550315856934 3 C 5.541795253753662 3 3 5.541795253753662 3 8.677550315856934 C 3 11.81330490112305 5.541795253753662 14.35510063171387 8.677550315856934 14.35510063171387 C 10.08383560180664 14.35510063171387 11.37657070159912 13.83975315093994 12.37232494354248 12.98375415802002 L 12.60816192626953 13.22832489013672 L 12.60816192626953 13.91836643218994 L 16.97550964355469 18.27697944641113 L 18.27697944641113 16.97550964355469 L 13.91836643218994 12.60816192626953 Z M 8.677550315856934 12.60816192626953 C 6.502612113952637 12.60816192626953 4.746938228607178 10.85248851776123 4.746938228607178 8.677550315856934 C 4.746938228607178 6.502612113952637 6.502612113952637 4.746938228607178 8.677550315856934 4.746938228607178 C 10.85248851776123 4.746938228607178 12.60816192626953 6.502612113952637 12.60816192626953 8.677550315856934 C 12.60816192626953 10.85248851776123 10.85248851776123 12.60816192626953 8.677550315856934 12.60816192626953 Z" fill="#95989a" stroke="none" stroke-width="1" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
+
+// SVG Icons
+const String _phoneIcon = '''
+<svg viewBox="0.0 0.0 21.1 21.1">
+  <path fill="#FFFFFF" d="M16.4 13.7q.3-.3.7-.3t.7.3l2.1 2.1q.3.3.3.7t-.3.7l-1.4 1.4q-1 .9-2.3.9-1.2 0-2.8-.7-2.9-1.3-5.3-3.7T3.7 9.1q-1.4-2.3-2-4T1.2 3q0-1.3 1-2.3l1.3-1.3q.3-.3.7-.3t.7.3L6.9 2q.3.3.3.7t-.3.7L5.4 5.1q-.2.2-.2.5 0 .1.1.3 1 2.2 2.7 4 1.7 1.7 3.9 2.8.1.1.3.1.3 0 .5-.2l1.8-1.8q.3-.3.7-.3t.7.3l2.1 2.1z"/>
+</svg>
+''';
+
+const String _searchIcon = '''
+<svg viewBox="0 0 24 24" width="24" height="24">
+  <path fill="#666666" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+</svg>
+''';

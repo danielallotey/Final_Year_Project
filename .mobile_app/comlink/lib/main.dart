@@ -1,18 +1,21 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'pages/home_screen.dart';
 
-void main() async {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+Future<void> main() async {
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  await _initializeFirebase();
+  runApp(const MyApp());
+}
+
+Future<void> _initializeFirebase() async {
   if (kIsWeb) {
     await Firebase.initializeApp(
-      options: FirebaseOptions(
+      options: const FirebaseOptions(
         apiKey: "AIzaSyB1nKRhCYn-q-KsegkerzJxgpL8tZhQCks",
         authDomain: "final-year-project---comlink.firebaseapp.com",
         projectId: "final-year-project---comlink",
@@ -25,8 +28,6 @@ void main() async {
   } else {
     await Firebase.initializeApp();
   }
-
-  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -40,10 +41,10 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initialization();
+    _removeSplashAfterDelay();
   }
 
-  void initialization() async {
+  Future<void> _removeSplashAfterDelay() async {
     await Future.delayed(const Duration(seconds: 3));
     FlutterNativeSplash.remove();
   }
@@ -54,8 +55,9 @@ class _MyAppState extends State<MyApp> {
       title: 'ComLink',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff3583bd)),
         useMaterial3: true,
+        fontFamily: 'Poppins',
       ),
       home: const HomeScreen(),
     );

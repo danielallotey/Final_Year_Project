@@ -1,114 +1,88 @@
 import 'package:flutter/material.dart';
-import 'package:adobe_xd/pinned.dart';
 
 class ProductCard extends StatelessWidget {
+  final String name;
+  final String specialty;
+  final int bookmarks;
+  final String? avatarPath;
+
   const ProductCard({
-    super.key
+    super.key,
+    this.name = 'Mohammed Muniru',
+    this.specialty = 'Dentist Specialist',
+    this.bookmarks = 543,
+    this.avatarPath,
   });
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Container(
-          decoration: BoxDecoration(
-            color: const Color(0xffffffff),
-            borderRadius: BorderRadius.circular(10.0),
-            border: Border.all(width: 0.5, color: const Color(0xff000000)),
+    return Container(
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(width: 0.5, color: Colors.black),
+      ),
+      child: Row(
+        children: [
+          // Avatar
+          CircleAvatar(
+            radius: 35,
+            backgroundImage: avatarPath != null
+                ? AssetImage(avatarPath!)
+                : const AssetImage('assets/images/avatar.png'),
           ),
-        ),
-        Align(
-          alignment: Alignment(0.074, 0.024),
-          child: SizedBox(
-            width: 147.0,
-            height: 48.0,
-            child:
-                // Adobe XD layer: 'info' (group)
-                Stack(
-              children: <Widget>[
-                Pinned.fromPins(
-                  Pin(start: 0.0, end: 0.0),
-                  Pin(size: 20.0, start: 0.0),
-                  child: Text(
-                    'Mohammed Muniru',
-                    style: TextStyle(
+          const SizedBox(width: 16),
+
+          // Doctor Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 14,
+                    color: Color(0xff215066),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  specialty,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    color: Color(0xff215066),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text.rich(
+                  TextSpan(
+                    style: const TextStyle(
                       fontFamily: 'Poppins',
-                      fontSize: 14,
-                      color: const Color(0xff215066),
-                      letterSpacing: 0.28,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 8,
+                      color: Color(0xff215066),
                     ),
-                    softWrap: false,
-                  ),
-                ),
-                Align(
-                  alignment: Alignment(-1.0, 0.29),
-                  child: SizedBox(
-                    width: 108.0,
-                    height: 17.0,
-                    child: Text(
-                      'Dentist Specialist',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        color: const Color(0xff215066),
-                        letterSpacing: 0.24,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      softWrap: false,
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: SizedBox(
-                    width: 63.0,
-                    height: 11.0,
-                    child: Text.rich(
+                    children: [
                       TextSpan(
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 8,
-                          color: const Color(0xff215066),
-                          letterSpacing: 0.16,
+                        text: '$bookmarks',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
                         ),
-                        children: [
-                          TextSpan(
-                            text: '543',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          TextSpan(
-                            text: ' Bookmarks',
-                          ),
-                        ],
                       ),
-                      textHeightBehavior:
-                          TextHeightBehavior(applyHeightToFirstAscent: false),
-                      softWrap: false,
-                    ),
+                      const TextSpan(text: ' Bookmarks'),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-        ),
-        Pinned.fromPins(
-          Pin(size: 71.0, start: 9.0),
-          Pin(start: 9.0, end: 9.0),
-          child:
-              // Adobe XD layer: 'avatar' (shape)
-              Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: const AssetImage('assets/images/avatar.png'),
-                fit: BoxFit.cover,
-              ),
-              borderRadius: BorderRadius.all(Radius.elliptical(9999.0, 9999.0)),
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

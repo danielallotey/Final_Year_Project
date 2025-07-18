@@ -1,37 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class ServiceNeededInput extends StatefulWidget {
+class CommunityInput extends StatefulWidget {
   final TextEditingController controller;
 
-  const ServiceNeededInput({
+  const CommunityInput({
     super.key,
     required this.controller,
   });
 
   @override
-  State<ServiceNeededInput> createState() => _ServiceNeededInputState();
+  State<CommunityInput> createState() => _CommunityInputState();
 }
 
-class _ServiceNeededInputState extends State<ServiceNeededInput> {
-  String? _selectedService;
-  final List<String> _services = [
-    'Plumber',
-    'Electrician',
-    'Painter',
-    'Carpenter',
-    'Cleaner',
-    'Gardener',
-    'Mechanic',
-    'Tailor',
+class _CommunityInputState extends State<CommunityInput> {
+  String? _selectedCommunity;
+  final List<String> _communities = [
+    'Kumasi',
+    'Accra',
+    'Tamale',
+    'Takoradi',
+    'Cape Coast',
+    'Tema',
+    'Koforidua',
+    'Sunyani',
+    'Ho',
+    'Wa',
   ];
 
   @override
   void initState() {
     super.initState();
-    // Initialize selected service from controller if it has a value
+    // Initialize selected community from controller if it has a value
     if (widget.controller.text.isNotEmpty) {
-      _selectedService = widget.controller.text;
+      _selectedCommunity = widget.controller.text;
     }
   }
 
@@ -49,11 +51,11 @@ class _ServiceNeededInputState extends State<ServiceNeededInput> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: _selectedService,
+          value: _selectedCommunity,
           hint: Padding(
             padding: const EdgeInsets.only(left: 20.0),
             child: Text(
-              'Service Needed',
+              'Community',
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 16,
@@ -72,13 +74,13 @@ class _ServiceNeededInputState extends State<ServiceNeededInput> {
             ),
           ),
           isExpanded: true,
-          items: _services.map((String service) {
+          items: _communities.map((String community) {
             return DropdownMenuItem<String>(
-              value: service,
+              value: community,
               child: Padding(
                 padding: const EdgeInsets.only(left: 20.0),
                 child: Text(
-                  service,
+                  community,
                   style: const TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 16,
@@ -91,7 +93,7 @@ class _ServiceNeededInputState extends State<ServiceNeededInput> {
           }).toList(),
           onChanged: (String? newValue) {
             setState(() {
-              _selectedService = newValue;
+              _selectedCommunity = newValue;
               // Update the controller with the selected value
               widget.controller.text = newValue ?? '';
             });
