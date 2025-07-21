@@ -1,326 +1,405 @@
 import 'package:flutter/material.dart';
-import 'package:adobe_xd/pinned.dart';
 import './step2.dart';
-import 'package:adobe_xd/page_link.dart';
 import '../components/back_top_bar.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-class BizInfoStep1 extends StatelessWidget {
-  const BizInfoStep1({
-    super.key
-  });
+class BizInfoStep1 extends StatefulWidget {
+  const BizInfoStep1({super.key});
+
+  @override
+  State<BizInfoStep1> createState() => _BizInfoStep1State();
+}
+
+class _BizInfoStep1State extends State<BizInfoStep1> {
+  final _formKey = GlobalKey<FormState>();
+  final _businessNameController = TextEditingController();
+
+  String? _selectedBusinessType;
+  String? _selectedCategory;
+
+  // Sample business types - replace with your actual data
+  final List<String> _businessTypes = [
+    'Sole Proprietorship',
+    'Partnership',
+    'Limited Liability Company (LLC)',
+    'Corporation',
+    'Non-Profit Organization',
+    'Freelancer/Independent Contractor',
+  ];
+
+  // Sample categories - replace with your actual data
+  final List<String> _categories = [
+    'Technology & IT',
+    'Healthcare & Medical',
+    'Education & Training',
+    'Construction & Home Services',
+    'Food & Beverage',
+    'Retail & E-commerce',
+    'Professional Services',
+    'Creative & Design',
+    'Transportation & Logistics',
+    'Financial Services',
+    'Real Estate',
+    'Entertainment & Events',
+    'Beauty & Wellness',
+    'Automotive',
+    'Agriculture & Farming',
+    'Manufacturing',
+    'Other',
+  ];
+
+  @override
+  void dispose() {
+    _businessNameController.dispose();
+    super.dispose();
+  }
+
+  void _navigateToNextStep() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const Step2(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const curve = Curves.easeInOutExpo;
+            final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
+                .chain(CurveTween(curve: curve));
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 1000),
+        ),
+      );
+    }
+  }
+
+  void _navigateToLogin() {
+    // Navigate to login screen - implement based on your routing
+    // Navigator.pushNamed(context, '/login');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Navigate to login screen')),
+    );
+  }
+
+  String? _validateRequired(String? value, String fieldName) {
+    if (value == null || value.isEmpty) {
+      return '$fieldName is required';
+    }
+    return null;
+  }
+
+  String? _validateDropdown(String? value, String fieldName) {
+    if (value == null || value.isEmpty) {
+      return 'Please select $fieldName';
+    }
+    return null;
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required void Function(String?) onChanged,
+    required String? Function(String?) validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: DropdownButtonFormField<String>(
+        value: value,
+        onChanged: onChanged,
+        validator: validator,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 16,
+            color: Colors.black54,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Color(0xff707070)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Color(0xff707070)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Color(0xff3583bd), width: 2.0),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Colors.red, width: 2.0),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+          suffixIcon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+        ),
+        items: items.map((String item) {
+          return DropdownMenuItem<String>(
+            value: item,
+            child: Text(
+              item,
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildInputField({
+    required String label,
+    required TextEditingController controller,
+    required String? Function(String?) validator,
+    TextInputType? keyboardType,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        validator: validator,
+        keyboardType: keyboardType,
+        style: const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 16,
+          color: Colors.black,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 16,
+            color: Colors.black54,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Color(0xff707070)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Color(0xff707070)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Color(0xff3583bd), width: 2.0),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Colors.red, width: 2.0),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffffffff),
-      body: Stack(
-        children: <Widget>[
+      backgroundColor: const Color(0xff3583bd),
+      body: Column(
+        children: [
+          // Back Top Bar
+          const BackTopBar(),
+
+          // Header Section
           Container(
-            color: const Color(0xff3583bd),
-          ),
-          Pinned.fromPins(
-            Pin(start: 44.0, end: 43.0),
-            Pin(size: 107.0, start: 114.0),
-            child: Text(
-              'ACCESS A LARGER\nNETWORK OF LOCAL\nCUSTOMERS',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 27,
-                color: const Color(0xffffffff),
-                letterSpacing: 1.08,
-                fontWeight: FontWeight.w700,
-                height: 1.2962962962962963,
-              ),
-              textHeightBehavior:
-                  TextHeightBehavior(applyHeightToFirstAscent: false),
-              textAlign: TextAlign.center,
-              softWrap: false,
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+            child: Column(
+              children: [
+                const Text(
+                  'ACCESS A LARGER\nNETWORK OF LOCAL\nCUSTOMERS',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 27,
+                    color: Colors.white,
+                    letterSpacing: 1.08,
+                    fontWeight: FontWeight.w700,
+                    height: 1.3,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Local jobs to grow your business your way',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 14,
+                    color: Colors.white,
+                    letterSpacing: 0.098,
+                    height: 1.43,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
-          Pinned.fromPins(
-            Pin(start: 40.0, end: 38.0),
-            Pin(size: 20.0, middle: 0.298),
-            child: Text(
-              'Local jobs to grow your business your way',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 14,
-                color: const Color(0xffffffff),
-                letterSpacing: 0.098,
-                height: 1.4285714285714286,
-              ),
-              textHeightBehavior:
-                  TextHeightBehavior(applyHeightToFirstAscent: false),
-              softWrap: false,
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 20.0, end: 20.0),
-            Pin(size: 415.0, end: 82.0),
+
+          // Form Container
+          Expanded(
             child: Container(
+              margin: const EdgeInsets.fromLTRB(20, 0, 20, 82),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xffffffff),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(9.0),
                 border: Border.all(width: 1.0, color: const Color(0xff707070)),
               ),
-            ),
-          ),
-          Align(
-            alignment: Alignment(0.0, -0.146),
-            child: SizedBox(
-              width: 203.0,
-              height: 25.0,
-              child: Text(
-                'Join Our Marketplace',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 18,
-                  color: const Color(0xff3583bd),
-                  letterSpacing: 0.36,
-                  fontWeight: FontWeight.w600,
-                  height: 1.1111111111111112,
-                ),
-                textHeightBehavior:
-                    TextHeightBehavior(applyHeightToFirstAscent: false),
-                softWrap: false,
-              ),
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 37.0, end: 36.0),
-            Pin(size: 45.0, middle: 0.5945),
-            child:
-                // Adobe XD layer: 'Type of Business' (group)
-                Stack(
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xffffffff),
-                    borderRadius: BorderRadius.circular(7.0),
-                    border:
-                        Border.all(width: 1.0, color: const Color(0xff707070)),
-                  ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 148.0, start: 20.0),
-                  Pin(size: 23.0, middle: 0.5),
-                  child: Text(
-                    'Type of Business',
+              child: Column(
+                children: [
+                  // Title
+                  const Text(
+                    'Join Our Marketplace',
                     style: TextStyle(
                       fontFamily: 'Poppins',
-                      fontSize: 16,
-                      color: const Color(0xff000000),
-                      letterSpacing: 1.12,
-                      height: 1.25,
+                      fontSize: 18,
+                      color: Color(0xff3583bd),
+                      letterSpacing: 0.36,
+                      fontWeight: FontWeight.w600,
                     ),
-                    textHeightBehavior:
-                        TextHeightBehavior(applyHeightToFirstAscent: false),
                     textAlign: TextAlign.center,
-                    softWrap: false,
                   ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 14.3, end: 19.7),
-                  Pin(size: 7.2, middle: 0.5021),
-                  child:
-                      // Adobe XD layer: 'ic_arrow_drop_down_…' (shape)
-                      SvgPicture.string(
-                    _svg_ao569x,
-                    allowDrawingOutsideViewBox: true,
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 37.0, end: 36.0),
-            Pin(size: 45.0, middle: 0.5098),
-            child:
-                // Adobe XD layer: 'Name of Business' (group)
-                Stack(
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xffffffff),
-                    borderRadius: BorderRadius.circular(7.0),
-                    border:
-                        Border.all(width: 1.0, color: const Color(0xff707070)),
-                  ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 158.0, start: 15.0),
-                  Pin(size: 23.0, middle: 0.5),
-                  child: Text(
-                    'Name of Business',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      color: const Color(0xff000000),
-                      letterSpacing: 1.12,
-                      height: 1.25,
-                    ),
-                    textHeightBehavior:
-                        TextHeightBehavior(applyHeightToFirstAscent: false),
-                    textAlign: TextAlign.center,
-                    softWrap: false,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 37.0, end: 36.0),
-            Pin(size: 45.0, middle: 0.8227),
-            child:
-                // Adobe XD layer: 'Next button' (group)
-                PageLink(
-              links: [
-                PageLinkInfo(
-                  ease: Curves.easeInOutExpo,
-                  duration: 1.0,
-                  pageBuilder: () => Step2(),
-                ),
-              ],
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xfff64743),
-                      borderRadius: BorderRadius.circular(7.0),
-                      border: Border.all(
-                          width: 1.0, color: const Color(0xff707070)),
-                    ),
-                  ),
-                  Center(
-                    child: SizedBox(
-                      width: 38.0,
-                      height: 23.0,
-                      child: Text(
-                        'Next',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 16,
-                          color: const Color(0xffffffff),
-                          letterSpacing: 1.12,
-                          height: 1.25,
+
+                  const SizedBox(height: 30),
+
+                  // Form
+                  Expanded(
+                    child: Form(
+                      key: _formKey,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            _buildInputField(
+                              label: 'Name of Business',
+                              controller: _businessNameController,
+                              validator: (value) => _validateRequired(value, 'Business name'),
+                              keyboardType: TextInputType.text,
+                            ),
+
+                            _buildDropdownField(
+                              label: 'Type of Business',
+                              value: _selectedBusinessType,
+                              items: _businessTypes,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _selectedBusinessType = newValue;
+                                });
+                              },
+                              validator: (value) => _validateDropdown(value, 'business type'),
+                            ),
+
+                            _buildDropdownField(
+                              label: 'Category',
+                              value: _selectedCategory,
+                              items: _categories,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _selectedCategory = newValue;
+                                });
+                              },
+                              validator: (value) => _validateDropdown(value, 'category'),
+                            ),
+
+                            const SizedBox(height: 30),
+
+                            // Next Button
+                            SizedBox(
+                              width: double.infinity,
+                              height: 45,
+                              child: ElevatedButton(
+                                onPressed: _navigateToNextStep,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xfff64743),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(7.0),
+                                    side: const BorderSide(
+                                      width: 1.0,
+                                      color: Color(0xff707070),
+                                    ),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: const Text(
+                                  'Next',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 16,
+                                    letterSpacing: 1.12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        textHeightBehavior:
-                            TextHeightBehavior(applyHeightToFirstAscent: false),
-                        textAlign: TextAlign.center,
-                        softWrap: false,
                       ),
                     ),
                   ),
+
+                  // Bottom Section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: _navigateToLogin,
+                        child: const Text.rich(
+                          TextSpan(
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 11,
+                              color: Colors.black,
+                              letterSpacing: 0.11,
+                              height: 1.82,
+                            ),
+                            children: [
+                              TextSpan(text: 'Already have an account? '),
+                              TextSpan(
+                                text: 'Log in',
+                                style: TextStyle(
+                                  color: Color(0xff006ea2),
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const Text(
+                        'Step 1/2',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 11,
+                          color: Colors.black,
+                          letterSpacing: 0.11,
+                          height: 1.82,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-          ),
-          Pinned.fromPins(
-            Pin(size: 183.0, start: 39.0),
-            Pin(size: 16.0, end: 102.0),
-            child: Text.rich(
-              TextSpan(
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 11,
-                  color: const Color(0xff000000),
-                  letterSpacing: 0.11,
-                  height: 1.8181818181818181,
-                ),
-                children: [
-                  TextSpan(
-                    text: 'Already have an account? ',
-                  ),
-                  TextSpan(
-                    text: 'Log in',
-                    style: TextStyle(
-                      color: const Color(0xff006ea2),
-                    ),
-                  ),
-                ],
-              ),
-              textHeightBehavior:
-                  TextHeightBehavior(applyHeightToFirstAscent: false),
-              softWrap: false,
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(size: 44.0, end: 38.0),
-            Pin(size: 16.0, end: 102.0),
-            child: Text(
-              'Step 1/2',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 11,
-                color: const Color(0xff000000),
-                letterSpacing: 0.11,
-                height: 1.8181818181818181,
-              ),
-              textHeightBehavior:
-                  TextHeightBehavior(applyHeightToFirstAscent: false),
-              softWrap: false,
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 37.0, end: 36.0),
-            Pin(size: 45.0, middle: 0.6793),
-            child:
-                // Adobe XD layer: 'Category' (group)
-                Stack(
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xffffffff),
-                    borderRadius: BorderRadius.circular(7.0),
-                    border:
-                        Border.all(width: 1.0, color: const Color(0xff707070)),
-                  ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 83.0, start: 20.0),
-                  Pin(size: 23.0, middle: 0.5),
-                  child: Text(
-                    'Category',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      color: const Color(0xff000000),
-                      letterSpacing: 1.12,
-                      height: 1.25,
-                    ),
-                    textHeightBehavior:
-                        TextHeightBehavior(applyHeightToFirstAscent: false),
-                    softWrap: false,
-                  ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 14.3, end: 19.7),
-                  Pin(size: 7.2, middle: 0.5021),
-                  child:
-                      // Adobe XD layer: 'ic_arrow_drop_down_…' (shape)
-                      SvgPicture.string(
-                    _svg_ao569x,
-                    allowDrawingOutsideViewBox: true,
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 0.0, end: 0.0),
-            Pin(size: 65.0, start: 0.0),
-            child:
-                // Adobe XD layer: 'Back Top Bar' (component)
-                BackTopBar(),
           ),
         ],
       ),
     );
   }
 }
-
-// ignore: constant_identifier_names
-const String _svg_ao569x =
-    '<svg viewBox="288.0 443.0 14.3 7.2" ><path transform="translate(281.0, 433.0)" d="M 7 10 L 14.15801906585693 17.15802192687988 L 21.3160400390625 10 L 7 10 Z" fill="#000000" stroke="none" stroke-width="1" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';

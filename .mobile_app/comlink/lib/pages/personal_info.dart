@@ -1,289 +1,327 @@
 import 'package:flutter/material.dart';
-import 'package:adobe_xd/pinned.dart';
 import './biz_info_step1.dart';
-import 'package:adobe_xd/page_link.dart';
-import '../components/back_top_bar.dart';
 
-class PersonalInfo extends StatelessWidget {
-  const PersonalInfo({
-    super.key,
-  });
+class PersonalInfo extends StatefulWidget {
+  const PersonalInfo({super.key});
+
+  @override
+  State<PersonalInfo> createState() => _PersonalInfoState();
+}
+
+class _PersonalInfoState extends State<PersonalInfo> {
+  final _formKey = GlobalKey<FormState>();
+  final _fullNameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _navigateToNextStep() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const BizInfoStep1(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const curve = Curves.easeInOutExpo;
+            final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
+                .chain(CurveTween(curve: curve));
+            return SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 1000),
+        ),
+      );
+    }
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email is required';
+    }
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    return null;
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please confirm your password';
+    }
+    if (value != _passwordController.text) {
+      return 'Passwords do not match';
+    }
+    return null;
+  }
+
+  String? _validatePhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Phone number is required';
+    }
+    final phoneRegex = RegExp(r'^\+?[\d\s\-\(\)]{10,}$');
+    if (!phoneRegex.hasMatch(value)) {
+      return 'Please enter a valid phone number';
+    }
+    return null;
+  }
+
+  String? _validateRequired(String? value, String fieldName) {
+    if (value == null || value.isEmpty) {
+      return '$fieldName is required';
+    }
+    return null;
+  }
+
+  Widget _buildInputField({
+    required String label,
+    required TextEditingController controller,
+    required String? Function(String?) validator,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    VoidCallback? onToggleObscure,
+    bool showToggle = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        validator: validator,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        style: const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 16,
+          color: Colors.black,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 16,
+            color: Colors.black54,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Color(0xff707070)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Color(0xff707070)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Color(0xff3583bd), width: 2.0),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(7.0),
+            borderSide: const BorderSide(color: Colors.red, width: 2.0),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+          suffixIcon: showToggle
+              ? IconButton(
+            icon: Icon(
+              obscureText ? Icons.visibility : Icons.visibility_off,
+              color: Colors.grey,
+            ),
+            onPressed: onToggleObscure,
+          )
+              : null,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffffffff),
-      body: Stack(
-        children: <Widget>[
+      backgroundColor: const Color(0xff3583bd),
+      body: SafeArea(
+        child: Column(
+          children: [
+          // Back Top Bar - Simple implementation if BackTopBar component fails
           Container(
-            color: const Color(0xff3583bd),
-          ),
-          Pinned.fromPins(
-            Pin(start: 20.0, end: 20.0),
-            Pin(size: 562.0, end: 105.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xffffffff),
-                borderRadius: BorderRadius.circular(9.0),
-                border: Border.all(width: 1.0, color: const Color(0xff707070)),
+          height: 65,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
               ),
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 37.0, end: 36.0),
-            Pin(size: 45.0, middle: 0.8031),
-            child:
-                // Adobe XD layer: 'Next button' (group)
-                PageLink(
-              links: [
-                PageLinkInfo(
-                  ease: Curves.easeInOutExpo,
-                  duration: 1.0,
-                  pageBuilder: () => BizInfoStep1(),
-                ),
-              ],
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xfff64743),
-                      borderRadius: BorderRadius.circular(7.0),
-                      border: Border.all(
-                          width: 1.0, color: const Color(0xff707070)),
-                    ),
+              const Expanded(
+                child: Text(
+                  'Personal Information',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                   ),
-                  Center(
-                    child: SizedBox(
-                      width: 38.0,
-                      height: 23.0,
-                      child: Text(
-                        'Next',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 16,
-                          color: const Color(0xffffffff),
-                          letterSpacing: 1.12,
-                          height: 1.25,
-                        ),
-                        textHeightBehavior:
-                            TextHeightBehavior(applyHeightToFirstAscent: false),
-                        textAlign: TextAlign.center,
-                        softWrap: false,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(width: 48), // Balance the back button
+            ],
+          ),
+        ),
+
+        // Main Content
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(9.0),
+              border: Border.all(width: 1.0, color: const Color(0xff707070)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Title
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 30.0),
+                  child: Text(
+                    'Personal Information',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 18,
+                      color: Color(0xff3583bd),
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.36,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+
+                // Form
+                Expanded(
+                  child: Form(
+                    key: _formKey,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _buildInputField(
+                            label: 'Full Name',
+                            controller: _fullNameController,
+                            validator: (value) => _validateRequired(value, 'Full name'),
+                            keyboardType: TextInputType.name,
+                          ),
+
+                          _buildInputField(
+                            label: 'Phone',
+                            controller: _phoneController,
+                            validator: _validatePhone,
+                            keyboardType: TextInputType.phone,
+                          ),
+
+                          _buildInputField(
+                            label: 'Email Address',
+                            controller: _emailController,
+                            validator: _validateEmail,
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+
+                          _buildInputField(
+                            label: 'Password',
+                            controller: _passwordController,
+                            validator: _validatePassword,
+                            obscureText: _obscurePassword,
+                            showToggle: true,
+                            onToggleObscure: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+
+                          _buildInputField(
+                            label: 'Confirm Password',
+                            controller: _confirmPasswordController,
+                            validator: _validateConfirmPassword,
+                            obscureText: _obscureConfirmPassword,
+                            showToggle: true,
+                            onToggleObscure: () {
+                              setState(() {
+                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
+
+                          const SizedBox(height: 30),
+
+                          // Next Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 45,
+                            child: ElevatedButton(
+                              onPressed: _navigateToNextStep,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xfff64743),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(7.0),
+                                  side: const BorderSide(
+                                    width: 1.0,
+                                    color: Color(0xff707070),
+                                  ),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: const Text(
+                                'Next',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 16,
+                                  letterSpacing: 1.12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 37.0, end: 36.0),
-            Pin(size: 45.0, middle: 0.6271),
-            child:
-                // Adobe XD layer: 'Confirm Password' (group)
-                Stack(
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xffffffff),
-                    borderRadius: BorderRadius.circular(7.0),
-                    border:
-                        Border.all(width: 1.0, color: const Color(0xff707070)),
-                  ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 162.0, start: 20.0),
-                  Pin(size: 23.0, middle: 0.5),
-                  child: Text(
-                    'Confirm Password',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      color: const Color(0xff000000),
-                      letterSpacing: 1.12,
-                      height: 1.25,
-                    ),
-                    textHeightBehavior:
-                        TextHeightBehavior(applyHeightToFirstAscent: false),
-                    softWrap: false,
-                  ),
                 ),
               ],
             ),
           ),
-          Pinned.fromPins(
-            Pin(start: 37.0, end: 36.0),
-            Pin(size: 45.0, middle: 0.5424),
-            child:
-                // Adobe XD layer: 'Password' (group)
-                Stack(
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xffffffff),
-                    borderRadius: BorderRadius.circular(7.0),
-                    border:
-                        Border.all(width: 1.0, color: const Color(0xff707070)),
-                  ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 85.0, start: 20.0),
-                  Pin(size: 23.0, middle: 0.5),
-                  child: Text(
-                    'Password',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      color: const Color(0xff000000),
-                      letterSpacing: 1.12,
-                      height: 1.25,
-                    ),
-                    textHeightBehavior:
-                        TextHeightBehavior(applyHeightToFirstAscent: false),
-                    softWrap: false,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 37.0, end: 36.0),
-            Pin(size: 45.0, middle: 0.4576),
-            child:
-                // Adobe XD layer: 'Email Address' (group)
-                Stack(
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xffffffff),
-                    borderRadius: BorderRadius.circular(7.0),
-                    border:
-                        Border.all(width: 1.0, color: const Color(0xff707070)),
-                  ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 126.0, start: 20.0),
-                  Pin(size: 23.0, middle: 0.5),
-                  child: Text(
-                    'Email Address',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      color: const Color(0xff000000),
-                      letterSpacing: 1.12,
-                      height: 1.25,
-                    ),
-                    textHeightBehavior:
-                        TextHeightBehavior(applyHeightToFirstAscent: false),
-                    textAlign: TextAlign.center,
-                    softWrap: false,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 37.0, end: 36.0),
-            Pin(size: 45.0, middle: 0.3729),
-            child:
-                // Adobe XD layer: 'Phone' (group)
-                Stack(
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xffffffff),
-                    borderRadius: BorderRadius.circular(7.0),
-                    border:
-                        Border.all(width: 1.0, color: const Color(0xff707070)),
-                  ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 54.0, start: 20.0),
-                  Pin(size: 23.0, middle: 0.5),
-                  child: Text(
-                    'Phone',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      color: const Color(0xff000000),
-                      letterSpacing: 1.12,
-                      height: 1.25,
-                    ),
-                    textHeightBehavior:
-                        TextHeightBehavior(applyHeightToFirstAscent: false),
-                    textAlign: TextAlign.center,
-                    softWrap: false,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 37.0, end: 36.0),
-            Pin(size: 45.0, middle: 0.2881),
-            child:
-                // Adobe XD layer: 'Full Name' (group)
-                Stack(
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xffffffff),
-                    borderRadius: BorderRadius.circular(7.0),
-                    border:
-                        Border.all(width: 1.0, color: const Color(0xff707070)),
-                  ),
-                ),
-                Pinned.fromPins(
-                  Pin(size: 88.0, start: 20.0),
-                  Pin(size: 23.0, middle: 0.5),
-                  child: Text(
-                    'Full Name',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      color: const Color(0xff000000),
-                      letterSpacing: 1.12,
-                      height: 1.25,
-                    ),
-                    textHeightBehavior:
-                        TextHeightBehavior(applyHeightToFirstAscent: false),
-                    textAlign: TextAlign.center,
-                    softWrap: false,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Align(
-            alignment: Alignment(0.006, -0.578),
-            child: SizedBox(
-              width: 200.0,
-              height: 25.0,
-              child: Text(
-                'Personal Information',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 18,
-                  color: const Color(0xff3583bd),
-                  letterSpacing: 0.36,
-                  fontWeight: FontWeight.w600,
-                  height: 1.1111111111111112,
-                ),
-                textHeightBehavior:
-                    TextHeightBehavior(applyHeightToFirstAscent: false),
-                textAlign: TextAlign.center,
-                softWrap: false,
-              ),
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 0.0, end: 0.0),
-            Pin(size: 65.0, start: 0.0),
-            child:
-                // Adobe XD layer: 'Back Top Bar' (component)
-                BackTopBar(),
-          ),
-        ],
-      ),
+        ),
+          ]),
+    ),
     );
   }
 }
