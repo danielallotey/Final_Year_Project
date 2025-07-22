@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:adobe_xd/pinned.dart';
-import './back_top_bar.dart';
+import '../components/back_top_bar.dart';
 
 class ContactsDetails extends StatelessWidget {
-  ContactsDetails({
-    Key? key,
-  }) : super(key: key);
+  const ContactsDetails({
+    super.key,
+  });
   @override
   Widget build(BuildContext context) {
     return Scaffold(

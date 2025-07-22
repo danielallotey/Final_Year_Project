@@ -5,14 +5,14 @@ import 'package:adobe_xd/page_link.dart';
 import './business_details.dart';
 import './contacts_details.dart';
 import './passwords.dart';
-import './home.dart';
-import './back_top_bar.dart';
+import '../pages/home_screen.dart';
+import '../components/back_top_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class YourAccount extends StatelessWidget {
-  YourAccount({
-    Key? key,
-  }) : super(key: key);
+  const YourAccount({
+    super.key,
+  });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -282,7 +282,7 @@ class YourAccount extends StatelessWidget {
                       PageLinkInfo(
                         ease: Curves.easeInOutExpo,
                         duration: 1.0,
-                        pageBuilder: () => home(),
+                        pageBuilder: () => HomeScreen(),
                       ),
                     ],
                     child: Stack(
@@ -345,5 +345,6 @@ class YourAccount extends StatelessWidget {
   }
 }
 
+// ignore: constant_identifier_names
 const String _svg_r9zk9d =
     '<svg viewBox="20.5 149.0 336.0 1.0" ><path transform="translate(20.5, 149.0)" d="M 0 0 L 336 0" fill="none" stroke="#bbb6b6" stroke-width="0.5" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';

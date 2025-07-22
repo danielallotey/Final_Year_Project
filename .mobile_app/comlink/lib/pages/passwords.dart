@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:adobe_xd/pinned.dart';
-import './back_top_bar.dart';
+import '../components/back_top_bar.dart';
 
 class Passwords extends StatelessWidget {
-  Passwords({
-    Key? key,
-  }) : super(key: key);
+  const Passwords({
+    super.key,
+  });
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:adobe_xd/pinned.dart';
-import './back_top_bar.dart';
+import '../components/back_top_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AboutUs extends StatelessWidget {
-  AboutUs({
-    Key? key,
-  }) : super(key: key);
+  const AboutUs({
+    super.key,
+  });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -201,9 +201,12 @@ class AboutUs extends StatelessWidget {
   }
 }
 
+// ignore: constant_identifier_names
 const String _svg_q464k9 =
     '<svg viewBox="30.0 160.0 307.5 1.0" ><path transform="translate(30.0, 160.0)" d="M 0 0 L 307.5 0" fill="none" stroke="#bbb6b6" stroke-width="0.5" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
+// ignore: constant_identifier_names
 const String _svg_z34xp5 =
     '<svg viewBox="30.0 311.0 307.5 1.0" ><path transform="translate(30.0, 311.0)" d="M 0 0 L 307.5 0" fill="none" stroke="#bbb6b6" stroke-width="0.5" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
+// ignore: constant_identifier_names
 const String _svg_r0u15z =
     '<svg viewBox="30.0 399.0 307.5 1.0" ><path transform="translate(30.0, 399.0)" d="M 0 0 L 307.5 0" fill="none" stroke="#bbb6b6" stroke-width="0.5" stroke-miterlimit="4" stroke-linecap="butt" /></svg>';
