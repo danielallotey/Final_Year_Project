@@ -1,113 +1,123 @@
 import 'package:flutter/material.dart';
-import 'package:adobe_xd/pinned.dart';
 import '../components/regular_top_bar.dart';
 
 class Completed extends StatelessWidget {
-  const Completed({
-    super.key
-  });
+  const Completed({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffffffff),
-      body: Stack(
-        children: <Widget>[
+      backgroundColor: const Color(0xFF3583BD), // Blue background like in the image
+      body: Column(
+        children: [
+          // Top bar with blue background
           Container(
-            color: const Color(0xff3583bd),
+            color: const Color(0xFF3583BD),
+            child: const RegularTopBar(),
           ),
-          Pinned.fromPins(
-            Pin(start: 44.0, end: 43.0),
-            Pin(size: 107.0, start: 114.0),
-            child: Text(
-              'ACCESS A LARGER\nNETWORK OF LOCAL\nCUSTOMERS',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 27,
-                color: const Color(0xffffffff),
-                letterSpacing: 1.08,
-                fontWeight: FontWeight.w700,
-                height: 1.2962962962962963,
-              ),
-              textHeightBehavior:
-                  TextHeightBehavior(applyHeightToFirstAscent: false),
-              textAlign: TextAlign.center,
-              softWrap: false,
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 40.0, end: 38.0),
-            Pin(size: 20.0, middle: 0.298),
-            child: Text(
-              'Local jobs to grow your business your way',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 14,
-                color: const Color(0xffffffff),
-                letterSpacing: 0.098,
-                height: 1.4285714285714286,
-              ),
-              textHeightBehavior:
-                  TextHeightBehavior(applyHeightToFirstAscent: false),
-              softWrap: false,
-            ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 20.0, end: 20.0),
-            Pin(size: 392.0, end: 102.0),
+
+          // Main content
+          Expanded(
             child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xffffffff),
-                borderRadius: BorderRadius.circular(9.0),
-                border: Border.all(width: 1.0, color: const Color(0xff707070)),
+              color: const Color(0xFF3583BD),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 40.0),
+
+                  // Main headline in white
+                  _buildHeadline(),
+
+                  const SizedBox(height: 16.0),
+
+                  // Subtitle in white
+                  _buildSubtitle(),
+
+                  const SizedBox(height: 40.0),
+
+                  // White success message container
+                  _buildSuccessContainer(),
+
+                  const SizedBox(height: 20.0),
+                ],
               ),
             ),
           ),
-          Pinned.fromPins(
-            Pin(start: 52.0, end: 51.0),
-            Pin(size: 58.0, middle: 0.4854),
-            child: Text(
-              'You\'re on your way to new\ncustomers!',
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeadline() {
+    return const Text(
+      'ACCESS A LARGER\nNETWORK OF LOCAL\nCUSTOMERS',
+      style: TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 24,
+        color: Colors.white,
+        letterSpacing: 1.0,
+        height: 1.2,
+        fontWeight: FontWeight.w700,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget _buildSubtitle() {
+    return const Text(
+      'Local jobs to grow your business your way',
+      style: TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 14,
+        color: Colors.white,
+        height: 1.4,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget _buildSuccessContainer() {
+    return Expanded(
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(horizontal: 0.0),
+        padding: const EdgeInsets.all(24.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Success message in black
+            const Text(
+              "You're on your way to new customers!",
               style: TextStyle(
                 fontFamily: 'Poppins',
-                fontSize: 20,
-                color: const Color(0xff000000),
-                letterSpacing: 0.4,
+                fontSize: 18,
+                color: Colors.black,
                 fontWeight: FontWeight.w500,
-                height: 1.5,
+                height: 1.4,
               ),
-              textHeightBehavior:
-                  TextHeightBehavior(applyHeightToFirstAscent: false),
               textAlign: TextAlign.center,
-              softWrap: false,
             ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 47.0, end: 46.0),
-            Pin(size: 102.0, middle: 0.6662),
-            child: Text(
+
+            const SizedBox(height: 40.0),
+
+            // Main success message in blue
+            const Text(
               'A rep will reach\nout to you soon!',
               style: TextStyle(
                 fontFamily: 'Poppins',
-                fontSize: 33,
-                color: const Color(0xff3583bd),
-                letterSpacing: 0.66,
+                fontSize: 28,
+                color: Color(0xFF3583BD),
                 fontWeight: FontWeight.w700,
-                height: 1.6666666666666667,
+                height: 1.3,
               ),
-              textHeightBehavior:
-                  TextHeightBehavior(applyHeightToFirstAscent: false),
               textAlign: TextAlign.center,
-              softWrap: false,
             ),
-          ),
-          Pinned.fromPins(
-            Pin(start: 0.0, end: 0.0),
-            Pin(size: 65.0, start: 0.0),
-            child:
-                // Adobe XD layer: 'Regular Top Bar' (component)
-                RegularTopBar(),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import './completed.dart';
-import '../components/back_top_bar.dart';
 
 class Step2 extends StatefulWidget {
   const Step2({super.key});
@@ -14,6 +14,7 @@ class _Step2State extends State<Step2> {
   final _formKey = GlobalKey<FormState>();
   bool _ownsBusinessConfirmed = false;
   bool _termsAccepted = false;
+  bool _isSubmitting = false;
 
   // Controllers for form fields
   final _businessDescController = TextEditingController();
@@ -23,6 +24,14 @@ class _Step2State extends State<Step2> {
   final _locationController = TextEditingController();
   final _addressController = TextEditingController();
 
+  // Focus nodes for better form navigation
+  final _businessDescFocus = FocusNode();
+  final _emailFocus = FocusNode();
+  final _phoneFocus = FocusNode();
+  final _phone2Focus = FocusNode();
+  final _locationFocus = FocusNode();
+  final _addressFocus = FocusNode();
+
   @override
   void dispose() {
     _businessDescController.dispose();
@@ -31,92 +40,153 @@ class _Step2State extends State<Step2> {
     _phone2Controller.dispose();
     _locationController.dispose();
     _addressController.dispose();
+
+    _businessDescFocus.dispose();
+    _emailFocus.dispose();
+    _phoneFocus.dispose();
+    _phone2Focus.dispose();
+    _locationFocus.dispose();
+    _addressFocus.dispose();
     super.dispose();
   }
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
+    // Unfocus any active text field
+    FocusScope.of(context).unfocus();
+
     if (_formKey.currentState?.validate() ?? false) {
       if (!_ownsBusinessConfirmed) {
-        _showSnackBar('Please confirm you own/manage this business');
+        _showSnackBar('Please confirm you own/manage this business', isError: true);
         return;
       }
       if (!_termsAccepted) {
-        _showSnackBar('Please accept Terms & Conditions and Privacy Policy');
+        _showSnackBar('Please accept Terms & Conditions and Privacy Policy', isError: true);
         return;
       }
 
-      // Navigate to completed page
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const Completed(),
-          transitionDuration: const Duration(seconds: 1),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1.0, 0.0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeInOutExpo,
-              )),
-              child: child,
-            );
-          },
-        ),
-      );
+      setState(() => _isSubmitting = true);
+
+      try {
+        // Simulate API call or data processing
+        await Future.delayed(const Duration(seconds: 1));
+
+        if (!mounted) return;
+
+        // Navigate to completed page
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const Completed(),
+            transitionDuration: const Duration(milliseconds: 1000),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              const curve = Curves.easeInOutExpo;
+              final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
+                  .chain(CurveTween(curve: curve));
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: child,
+              );
+            },
+          ),
+        );
+      } catch (e) {
+        _showSnackBar('Something went wrong. Please try again.', isError: true);
+      } finally {
+        if (mounted) {
+          setState(() => _isSubmitting = false);
+        }
+      }
     }
   }
 
-  void _showSnackBar(String message) {
+  void _showSnackBar(String message, {bool isError = false}) {
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(fontFamily: 'Poppins', fontSize: 14),
+        ),
+        backgroundColor: isError ? Colors.red[600] : Colors.green[600],
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(20),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
+      ),
     );
   }
 
   Widget _buildFormField({
     required String label,
     required TextEditingController controller,
+    FocusNode? focusNode,
+    FocusNode? nextFocus,
     String? Function(String?)? validator,
     TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
     int maxLines = 1,
+    int? maxLength,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        controller: controller,
-        validator: validator,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Semantics(
+        label: label,
+        child: TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          validator: validator,
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          maxLines: maxLines,
+          maxLength: maxLength,
+          textInputAction: nextFocus != null ? TextInputAction.next : TextInputAction.done,
+          onFieldSubmitted: (_) {
+            if (nextFocus != null) {
+              FocusScope.of(context).requestFocus(nextFocus);
+            } else {
+              _handleSubmit();
+            }
+          },
+          style: const TextStyle(
             fontFamily: 'Poppins',
             fontSize: 16,
             color: Colors.black,
             letterSpacing: 1.12,
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(7),
-            borderSide: const BorderSide(color: Color(0xff707070)),
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              color: Colors.black87,
+              letterSpacing: 1.12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(7.0),
+              borderSide: const BorderSide(color: Color(0xff707070)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(7.0),
+              borderSide: const BorderSide(color: Color(0xff707070)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(7.0),
+              borderSide: const BorderSide(color: Color(0xff3583bd), width: 2.0),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(7.0),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(7.0),
+              borderSide: const BorderSide(color: Colors.red, width: 2.0),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+            counterText: maxLength != null ? null : "",
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(7),
-            borderSide: const BorderSide(color: Color(0xff707070)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(7),
-            borderSide: const BorderSide(color: Color(0xff3583bd), width: 2),
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          filled: true,
-          fillColor: Colors.white,
-        ),
-        style: const TextStyle(
-          fontFamily: 'Poppins',
-          fontSize: 16,
-          color: Colors.black,
-          letterSpacing: 1.12,
+          enabled: !_isSubmitting,
         ),
       ),
     );
@@ -127,210 +197,323 @@ class _Step2State extends State<Step2> {
     required bool value,
     required ValueChanged<bool?> onChanged,
   }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: const Color(0xff707070)),
-              borderRadius: BorderRadius.circular(3),
-            ),
-            child: Checkbox(
-              value: value,
-              onChanged: onChanged,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 12,
-                color: Colors.black,
-                letterSpacing: 0.08,
-                fontStyle: FontStyle.italic,
-                height: 1.5,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Semantics(
+        label: text,
+        checked: value,
+        child: InkWell(
+          onTap: () => onChanged(!value),
+          borderRadius: BorderRadius.circular(7.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 20,
+                height: 20,
+                margin: const EdgeInsets.only(top: 2),
+                decoration: BoxDecoration(
+                  color: value ? const Color(0xff3583bd) : Colors.white,
+                  border: Border.all(
+                    color: value ? const Color(0xff3583bd) : const Color(0xff707070),
+                    width: value ? 2 : 1,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: value
+                    ? const Icon(
+                  Icons.check,
+                  size: 14,
+                  color: Colors.white,
+                )
+                    : null,
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 14,
+                    color: Colors.black87,
+                    letterSpacing: 0.098,
+                    height: 1.43,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  String? _validatePhone(String? value) {
+    if (value?.trim().isEmpty ?? true) {
+      return 'Phone number is required';
+    }
+    if (!RegExp(r'^\+?[\d\s\-\(\)]+$').hasMatch(value!.trim())) {
+      return 'Please enter a valid phone number';
+    }
+    if (value.replaceAll(RegExp(r'[\s\-\(\)]'), '').length < 10) {
+      return 'Phone number must be at least 10 digits';
+    }
+    return null;
+  }
+
+  String? _validateOptionalPhone(String? value) {
+    if (value?.trim().isEmpty ?? true) {
+      return null;
+    }
+    return _validatePhone(value);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff3583bd),
-      body: Column(
-        children: [
-          const BackTopBar(),
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(9),
-                border: Border.all(color: const Color(0xff707070)),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Custom Top Bar
+            Container(
+              height: 65,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'Business Information',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: Colors.white,
+                        fontSize: 18,
+                        letterSpacing: 1.12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(width: 48), // Balance the back button
+                ],
               ),
-              child: SingleChildScrollView(
+            ),
+
+            // Form Container
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                 padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(9.0),
+                  border: Border.all(width: 1.0, color: const Color(0xff707070)),
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     children: [
-                      // Profile Icon
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 30),
-                        child: SvgPicture.string(
-                          _profileIconSvg,
-                          width: 80,
-                          height: 80,
+                      // Title
+                      const Text(
+                        'Join Our Marketplace',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 18,
+                          color: Color(0xff3583bd),
+                          letterSpacing: 0.36,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ),
-
-                      // Form Fields
-                      _buildFormField(
-                        label: 'Business Description',
-                        controller: _businessDescController,
-                        maxLines: 3,
-                        validator: (value) {
-                          if (value?.trim().isEmpty ?? true) {
-                            return 'Business description is required';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      _buildFormField(
-                        label: 'Email Address',
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value?.trim().isEmpty ?? true) {
-                            return 'Email address is required';
-                          }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value!)) {
-                            return 'Please enter a valid email address';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      _buildFormField(
-                        label: 'Business Phone',
-                        controller: _phoneController,
-                        keyboardType: TextInputType.phone,
-                        validator: (value) {
-                          if (value?.trim().isEmpty ?? true) {
-                            return 'Business phone is required';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      _buildFormField(
-                        label: 'Business Phone #2 (Optional)',
-                        controller: _phone2Controller,
-                        keyboardType: TextInputType.phone,
-                      ),
-
-                      _buildFormField(
-                        label: 'Location',
-                        controller: _locationController,
-                        validator: (value) {
-                          if (value?.trim().isEmpty ?? true) {
-                            return 'Location is required';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      _buildFormField(
-                        label: 'Business Address',
-                        controller: _addressController,
-                        maxLines: 2,
-                        validator: (value) {
-                          if (value?.trim().isEmpty ?? true) {
-                            return 'Business address is required';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Checkboxes
-                      _buildCheckbox(
-                        text: 'I confirm I own/manage this business',
-                        value: _ownsBusinessConfirmed,
-                        onChanged: (value) {
-                          setState(() {
-                            _ownsBusinessConfirmed = value ?? false;
-                          });
-                        },
-                      ),
-
-                      _buildCheckbox(
-                        text: 'By clicking "Submit" you agree to our Terms & Conditions and Privacy Policy.',
-                        value: _termsAccepted,
-                        onChanged: (value) {
-                          setState(() {
-                            _termsAccepted = value ?? false;
-                          });
-                        },
+                        textAlign: TextAlign.center,
                       ),
 
                       const SizedBox(height: 30),
 
-                      // Submit Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 45,
-                        child: ElevatedButton(
-                          onPressed: _handleSubmit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xfff64743),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(7),
-                              side: const BorderSide(color: Color(0xff707070)),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: const Text(
-                            'Submit',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 16,
-                              letterSpacing: 1.12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Form Fields
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              // Profile Icon
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 30),
+                                child: SvgPicture.string(
+                                  _profileIconSvg,
+                                  width: 80,
+                                  height: 80,
+                                ),
+                              ),
 
-                      const SizedBox(height: 20),
+                              _buildFormField(
+                                label: 'Business Description',
+                                controller: _businessDescController,
+                                focusNode: _businessDescFocus,
+                                nextFocus: _emailFocus,
+                                maxLines: 3,
+                                maxLength: 500,
+                                validator: (value) {
+                                  if (value?.trim().isEmpty ?? true) {
+                                    return 'Business description is required';
+                                  }
+                                  if (value!.trim().length < 10) {
+                                    return 'Please provide a more detailed description (at least 10 characters)';
+                                  }
+                                  return null;
+                                },
+                              ),
 
-                      // Step indicator
-                      const Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          'Step 2/2',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 11,
-                            color: Colors.black,
-                            letterSpacing: 0.11,
-                            height: 1.8,
+                              _buildFormField(
+                                label: 'Email Address',
+                                controller: _emailController,
+                                focusNode: _emailFocus,
+                                nextFocus: _phoneFocus,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: (value) {
+                                  if (value?.trim().isEmpty ?? true) {
+                                    return 'Email address is required';
+                                  }
+                                  if (!RegExp(r'^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$').hasMatch(value!.trim())) {
+                                    return 'Please enter a valid email address';
+                                  }
+                                  return null;
+                                },
+                              ),
+
+                              _buildFormField(
+                                label: 'Business Phone',
+                                controller: _phoneController,
+                                focusNode: _phoneFocus,
+                                nextFocus: _phone2Focus,
+                                keyboardType: TextInputType.phone,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp(r'[\d\s\-\(\)\+]')),
+                                ],
+                                validator: _validatePhone,
+                              ),
+
+                              _buildFormField(
+                                label: 'Business Phone #2 (Optional)',
+                                controller: _phone2Controller,
+                                focusNode: _phone2Focus,
+                                nextFocus: _locationFocus,
+                                keyboardType: TextInputType.phone,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp(r'[\d\s\-\(\)\+]')),
+                                ],
+                                validator: _validateOptionalPhone,
+                              ),
+
+                              _buildFormField(
+                                label: 'Location',
+                                controller: _locationController,
+                                focusNode: _locationFocus,
+                                nextFocus: _addressFocus,
+                                validator: (value) {
+                                  if (value?.trim().isEmpty ?? true) {
+                                    return 'Location is required';
+                                  }
+                                  return null;
+                                },
+                              ),
+
+                              _buildFormField(
+                                label: 'Business Address',
+                                controller: _addressController,
+                                focusNode: _addressFocus,
+                                maxLines: 2,
+                                validator: (value) {
+                                  if (value?.trim().isEmpty ?? true) {
+                                    return 'Business address is required';
+                                  }
+                                  return null;
+                                },
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              // Checkboxes
+                              _buildCheckbox(
+                                text: 'I confirm I own/manage this business',
+                                value: _ownsBusinessConfirmed,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _ownsBusinessConfirmed = value ?? false;
+                                  });
+                                },
+                              ),
+
+                              _buildCheckbox(
+                                text: 'By clicking "Submit" you agree to our Terms & Conditions and Privacy Policy.',
+                                value: _termsAccepted,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _termsAccepted = value ?? false;
+                                  });
+                                },
+                              ),
+
+                              const SizedBox(height: 30),
+
+                              // Submit Button
+                              SizedBox(
+                                width: double.infinity,
+                                height: 45,
+                                child: ElevatedButton(
+                                  onPressed: _isSubmitting ? null : _handleSubmit,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _isSubmitting
+                                        ? Colors.grey[400]
+                                        : const Color(0xfff64743),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(7.0),
+                                      side: const BorderSide(color: Color(0xff707070)),
+                                    ),
+                                    elevation: 0,
+                                    disabledBackgroundColor: Colors.grey[400],
+                                    disabledForegroundColor: Colors.white,
+                                  ),
+                                  child: _isSubmitting
+                                      ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  )
+                                      : const Text(
+                                    'Submit',
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 16,
+                                      letterSpacing: 1.12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              // Step Indicator
+                              const Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  'Step 2/2',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 11,
+                                    color: Colors.black,
+                                    letterSpacing: 0.11,
+                                    height: 1.82,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -339,8 +522,8 @@ class _Step2State extends State<Step2> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
