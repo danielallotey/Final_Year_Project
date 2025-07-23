@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import './personal_info.dart';
 import '../components/regular_top_bar.dart';
+import '../modules/business_registration_data.dart';
 
 class BusinessSignup extends StatefulWidget {
   const BusinessSignup({super.key});
@@ -159,11 +160,15 @@ class _BusinessSignupState extends State<BusinessSignup> {
       height: 45.0,
       child: ElevatedButton(
         onPressed: () {
+          final registrationData = BusinessRegistrationData(
+            serviceType: selectedService,
+          );
+
           Navigator.push(
             context,
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
-              const PersonalInfo(),
+                  PersonalInfo(registrationData: registrationData),
               transitionDuration: const Duration(seconds: 1),
               transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 return SlideTransition(

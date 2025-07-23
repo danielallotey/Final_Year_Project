@@ -2,9 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import './completed.dart';
+import '../modules/business_registration_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class Step2 extends StatefulWidget {
-  const Step2({super.key});
+  final BusinessRegistrationData registrationData;
+
+  const Step2({
+    super.key,
+    required this.registrationData,
+  });
 
   @override
   State<Step2> createState() => _Step2State();
@@ -18,7 +27,7 @@ class _Step2State extends State<Step2> {
 
   // Controllers for form fields
   final _businessDescController = TextEditingController();
-  final _emailController = TextEditingController();
+  final _bizemailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _phone2Controller = TextEditingController();
   final _locationController = TextEditingController();
@@ -35,7 +44,7 @@ class _Step2State extends State<Step2> {
   @override
   void dispose() {
     _businessDescController.dispose();
-    _emailController.dispose();
+    _bizemailController.dispose();
     _phoneController.dispose();
     _phone2Controller.dispose();
     _locationController.dispose();
@@ -70,13 +79,64 @@ class _Step2State extends State<Step2> {
         // Simulate API call or data processing
         await Future.delayed(const Duration(seconds: 1));
 
+
+
+        widget.registrationData.businessDescription = _businessDescController.text.trim();
+        widget.registrationData.bizemail = _bizemailController.text.trim();
+        widget.registrationData.phone = _phoneController.text.trim();
+        widget.registrationData.phone2 = _phone2Controller.text.trim();
+        widget.registrationData.location = _locationController.text.trim();
+        widget.registrationData.address = _addressController.text.trim();
+
+    // Extract email and create default password or use another method
+        final email = widget.registrationData.email?.trim();
+        final defaultPassword = widget.registrationData.password?.trim();
+
+        if (email == null || email.isEmpty || defaultPassword == null || defaultPassword.isEmpty) {
+          _showSnackBar('Missing email or password from previous step', isError: true);
+          setState(() => _isSubmitting = false);
+          return;
+        }
+
+    // Create Firebase user
+    final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+    email: email,
+    password: defaultPassword,
+    );
+
+    final uid = userCredential.user?.uid;
+    if (uid == null) {
+    throw FirebaseAuthException(code: 'USER_NULL', message: 'User creation failed.');
+    }
+
+        final businessRef = await FirebaseFirestore.instance.collection('businesses').add({
+          'businessName': widget.registrationData.businessName,
+          'serviceType': widget.registrationData.serviceType,
+          'phoneNumber': widget.registrationData.phone,
+          'whatsappNumber': widget.registrationData.phone2,
+          'location': widget.registrationData.location,
+          'gpsAddress': widget.registrationData.address,
+          'email': widget.registrationData.bizemail,
+          'businessDescription': widget.registrationData.businessDescription,
+          'createdAt': FieldValue.serverTimestamp(),
+          'ownerId': uid, // link to user
+        });
+
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'email': email,
+          'businessId': businessRef.id,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        await userCredential.user?.sendEmailVerification();
+
         if (!mounted) return;
 
         // Navigate to completed page
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const Completed(),
+            pageBuilder: (context, animation, secondaryAnimation) => Completed(),
             transitionDuration: const Duration(milliseconds: 1000),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               const curve = Curves.easeInOutExpo;
@@ -367,7 +427,7 @@ class _Step2State extends State<Step2> {
 
                               _buildFormField(
                                 label: 'Email Address',
-                                controller: _emailController,
+                                controller: _bizemailController,
                                 focusNode: _emailFocus,
                                 nextFocus: _phoneFocus,
                                 keyboardType: TextInputType.emailAddress,

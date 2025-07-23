@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import './step2.dart';
+import '../modules/business_registration_data.dart';
 
 class BizInfoStep1 extends StatefulWidget {
-  const BizInfoStep1({super.key});
+  final BusinessRegistrationData registrationData;
+
+  const BizInfoStep1({super.key, required this.registrationData});
 
   @override
   State<BizInfoStep1> createState() => _BizInfoStep1State();
@@ -68,10 +71,16 @@ class _BizInfoStep1State extends State<BizInfoStep1> {
         return;
       }
 
+      widget.registrationData.businessName = _businessNameController.text;
+      widget.registrationData.businessType = _selectedBusinessType;
+      widget.registrationData.category = _selectedCategory;
+
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const Step2(),
+            pageBuilder: (context, animation, secondaryAnimation) => Step2(
+              registrationData: widget.registrationData,
+            ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const curve = Curves.easeInOutExpo;
             final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)

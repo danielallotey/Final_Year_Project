@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import './biz_info_step1.dart';
+import '../modules/business_registration_data.dart';
 
 class PersonalInfo extends StatefulWidget {
-  const PersonalInfo({super.key});
+  final BusinessRegistrationData registrationData;
+
+  const PersonalInfo({super.key, required this.registrationData});
 
   @override
   State<PersonalInfo> createState() => _PersonalInfoState();
@@ -31,10 +34,15 @@ class _PersonalInfoState extends State<PersonalInfo> {
 
   void _navigateToNextStep() {
     if (_formKey.currentState!.validate()) {
+      widget.registrationData.fullName = _fullNameController.text;
+      widget.registrationData.phone = _phoneController.text;
+      widget.registrationData.email = _emailController.text;
+      widget.registrationData.password = _passwordController.text;
+
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const BizInfoStep1(),
+          pageBuilder: (context, animation, secondaryAnimation) => BizInfoStep1(registrationData: widget.registrationData,),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const curve = Curves.easeInOutExpo;
             final tween = Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
