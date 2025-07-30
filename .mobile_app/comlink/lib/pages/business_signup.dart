@@ -313,7 +313,7 @@ class _ServiceSelectionScreen extends StatelessWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10.0,
                             offset: const Offset(0, 2),
                           ),
@@ -327,7 +327,7 @@ class _ServiceSelectionScreen extends StatelessWidget {
                             height: 50.0,
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFF3583BD).withOpacity(0.1)
+                                  ? const Color(0xFF3583BD).withValues(alpha: 0.1)
                                   : const Color(0xFFF5F5F5),
                               borderRadius: BorderRadius.circular(25.0),
                             ),

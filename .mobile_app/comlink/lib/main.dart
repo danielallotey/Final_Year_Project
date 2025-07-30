@@ -1,7 +1,9 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'pages/home_screen.dart';
 
 Future<void> main() async {
@@ -9,6 +11,14 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   await _initializeFirebase();
+
+  if (kDebugMode) {
+    try {
+      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+    } catch (_) {}
+  }
+
   runApp(const MyApp());
 }
 

@@ -17,7 +17,9 @@ class SearchResults extends StatefulWidget {
 class _SearchResultsState extends State<SearchResults> {
   static const Color _primaryBlue = Color(0xFF3583BD);
   static const Color _primaryRed = Color(0xFFF64743);
+  // ignore: unused_field
   static const Color _shadowColor = Color(0x29000000);
+  // ignore: unused_field
   static const Color _borderColor = Color(0xFF707070);
 
   List<ServiceProvider> _searchResults = [];
@@ -418,7 +420,7 @@ class _SearchResultsState extends State<SearchResults> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
         decoration: BoxDecoration(
-          color: _primaryBlue.withOpacity(0.1),
+          color: _primaryBlue.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
