@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
+import 'dart:io';
 import './completed.dart';
 import '../modules/business_registration_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class Step2 extends StatefulWidget {
   final BusinessRegistrationData registrationData;
@@ -59,6 +62,28 @@ class _Step2State extends State<Step2> {
     super.dispose();
   }
 
+  // Add this method to check network connectivity
+  Future<bool> _checkNetworkConnectivity() async {
+    try {
+      // Check connectivity status
+      final connectivityResult = await Connectivity().checkConnectivity();
+      // ignore: unrelated_type_equality_checks
+      if (connectivityResult == ConnectivityResult.none) {
+        return false;
+      }
+
+      // Additional check: try to reach a reliable server
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(seconds: 5));
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Network connectivity check failed: $e');
+      }
+      return false;
+    }
+  }
+
   Future<void> _handleSubmit() async {
     FocusScope.of(context).unfocus();
 
@@ -76,12 +101,28 @@ class _Step2State extends State<Step2> {
     setState(() => _isSubmitting = true);
 
     try {
+      // 🔧 CHECK NETWORK CONNECTIVITY FIRST
+      if (kDebugMode) {
+        debugPrint('Checking network connectivity...');
+      }
+      final hasNetwork = await _checkNetworkConnectivity();
+      if (!hasNetwork) {
+        _showSnackBar('No internet connection. Please check your network and try again.',
+            isError: true);
+        return;
+      }
+      if (kDebugMode) {
+        debugPrint('Network connectivity confirmed');
+      }
+
       // 1️⃣ Extract and validate payload
       final email = widget.registrationData.email?.trim();
       final password = widget.registrationData.password?.trim();
 
-      print('DEBUG: Email from registration data: $email'); // Debug log
-      print('DEBUG: Password length: ${password?.length ?? 0}'); // Debug log
+      if (kDebugMode) {
+        debugPrint('Email from registration data: $email');
+        debugPrint('Password length: ${password?.length ?? 0}');
+      }
 
       if (email == null || email.isEmpty) {
         _showSnackBar('Email is missing from previous step', isError: true);
@@ -104,15 +145,31 @@ class _Step2State extends State<Step2> {
         return;
       }
 
-      // 3️⃣ Check for duplicate email (optional but recommended)
+      // 3️⃣ Check for duplicate email with timeout
       try {
-        final signInMethods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+        if (kDebugMode) {
+          debugPrint('Checking for existing email...');
+        }
+        final signInMethods = await FirebaseAuth.instance
+            .fetchSignInMethodsForEmail(email)
+            .timeout(const Duration(seconds: 10));
         if (signInMethods.isNotEmpty) {
           _showSnackBar('An account with this email already exists', isError: true);
           return;
         }
+        if (kDebugMode) {
+          debugPrint('Email check passed');
+        }
+      } on TimeoutException catch (e) {
+        if (kDebugMode) {
+          debugPrint('Email check timeout: $e');
+        }
+        _showSnackBar('Request timeout. Please check your internet connection.', isError: true);
+        return;
       } catch (e) {
-        print('DEBUG: Could not check existing email: $e');
+        if (kDebugMode) {
+          debugPrint('Could not check existing email: $e');
+        }
         // Continue anyway - the createUser call will handle this
       }
 
@@ -127,13 +184,17 @@ class _Step2State extends State<Step2> {
         return;
       }
 
-      print('DEBUG: About to create user with email: $email'); // Debug log
+      if (kDebugMode) {
+        debugPrint('About to create user with email: $email');
+      }
 
-      // 5️⃣ Create Firebase Auth user
-      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      // 5️⃣ Create Firebase Auth user with timeout
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
         email: email,
         password: password,
-      );
+      )
+          .timeout(const Duration(seconds: 30));
 
       final uid = userCredential.user?.uid;
       if (uid == null) {
@@ -141,7 +202,9 @@ class _Step2State extends State<Step2> {
         return;
       }
 
-      print('DEBUG: User created successfully with UID: $uid'); // Debug log
+      if (kDebugMode) {
+        debugPrint('User created successfully with UID: $uid');
+      }
 
       // 6️⃣ Prepare Firestore data
       final firestore = FirebaseFirestore.instance;
@@ -157,7 +220,9 @@ class _Step2State extends State<Step2> {
         'role': 'business',
       };
 
-      print('DEBUG: User data to save: $userData'); // Debug log
+      if (kDebugMode) {
+        debugPrint('User data to save: $userData');
+      }
       batch.set(userDoc, userData);
 
       // Business document
@@ -177,19 +242,28 @@ class _Step2State extends State<Step2> {
         'createdAt': FieldValue.serverTimestamp(),
       };
 
-      print('DEBUG: Business data to save: $businessData'); // Debug log
+      if (kDebugMode) {
+        debugPrint('Business data to save: $businessData');
+      }
       batch.set(businessDoc, businessData);
 
-      // 7️⃣ Commit to Firestore
-      await batch.commit();
-      print('DEBUG: Firestore batch committed successfully'); // Debug log
+      // 7️⃣ Commit to Firestore with timeout
+      await batch.commit().timeout(const Duration(seconds: 30));
+      if (kDebugMode) {
+        debugPrint('Firestore batch committed successfully');
+      }
 
       // 8️⃣ Send verification email (non-blocking)
       try {
-        await userCredential.user?.sendEmailVerification();
-        print('DEBUG: Verification email sent'); // Debug log
+        await userCredential.user?.sendEmailVerification()
+            .timeout(const Duration(seconds: 10));
+        if (kDebugMode) {
+          debugPrint('Verification email sent');
+        }
       } catch (e) {
-        print('DEBUG: Failed to send verification email: $e'); // Debug log
+        if (kDebugMode) {
+          debugPrint('Failed to send verification email: $e');
+        }
         // Don't fail the entire process for this
       }
 
@@ -210,8 +284,22 @@ class _Step2State extends State<Step2> {
             (route) => false, // Clear entire stack
       );
 
+    } on TimeoutException catch (e) {
+      if (kDebugMode) {
+        debugPrint('Timeout error: $e');
+      }
+      _showSnackBar('Request timeout. Please check your internet connection and try again.',
+          isError: true);
+    } on SocketException catch (e) {
+      if (kDebugMode) {
+        debugPrint('Socket error: $e');
+      }
+      _showSnackBar('Network error. Please check your internet connection.',
+          isError: true);
     } on FirebaseAuthException catch (e) {
-      print('DEBUG: FirebaseAuthException: ${e.code} - ${e.message}'); // Debug log
+      if (kDebugMode) {
+        debugPrint('FirebaseAuthException: ${e.code} - ${e.message}');
+      }
       String msg;
       switch (e.code) {
         case 'email-already-in-use':
@@ -227,17 +315,29 @@ class _Step2State extends State<Step2> {
           msg = 'Email/password accounts are not enabled. Please contact support.';
           break;
         case 'network-request-failed':
-          msg = 'Network error. Please check your internet connection and try again.';
+          msg = 'Network connection failed. Please check your internet and try again.';
+          break;
+        case 'too-many-requests':
+          msg = 'Too many failed attempts. Please wait a moment and try again.';
           break;
         default:
           msg = 'Sign-up failed: ${e.message ?? 'Unknown error'}';
       }
       _showSnackBar(msg, isError: true);
     } on FirebaseException catch (e) {
-      print('DEBUG: FirebaseException: ${e.code} - ${e.message}'); // Debug log
-      _showSnackBar('Database error: ${e.message ?? 'Unknown error'}', isError: true);
+      if (kDebugMode) {
+        debugPrint('FirebaseException: ${e.code} - ${e.message}');
+      }
+      if (e.code == 'unavailable') {
+        _showSnackBar('Service temporarily unavailable. Please try again later.',
+            isError: true);
+      } else {
+        _showSnackBar('Database error: ${e.message ?? 'Unknown error'}', isError: true);
+      }
     } catch (e) {
-      print('DEBUG: Unexpected error: $e'); // Debug log
+      if (kDebugMode) {
+        debugPrint('Unexpected error: $e');
+      }
       _showSnackBar('Unexpected error: ${e.toString()}', isError: true);
     } finally {
       if (mounted) setState(() => _isSubmitting = false);

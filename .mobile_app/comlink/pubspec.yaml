@@ -42,6 +42,8 @@ dependencies:
   google_fonts:
   flutter_svg:
   path_provider:
+  connectivity_plus:
+  google_sign_in:
 
 
 

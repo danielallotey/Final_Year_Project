@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../pages/login_page.dart';
+import '../pages/about_us.dart';
 import '../pages/business_signup.dart';
 import '../pages/social_amenities.dart';
 import '../pages/home_screen.dart';
@@ -190,12 +191,15 @@ class _RegularTopBarState extends State<RegularTopBar>
                           _buildMenuItem(
                             icon: _buildContactIcon(),
                             text: 'About US',
-                            onTap: () {
+                            onTap: () => _navigateToPage(context, const AboutUs()),
+
+                           /* onTap: () {
                               _closeMenu();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('About US page coming soon!')),
                               );
                             },
+                            */
                           ),
                           const SizedBox(height: 15),
                           _buildMenuItem(
