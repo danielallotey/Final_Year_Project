@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'dart:async'; // <── new import
+import 'dart:async';
 import './completed.dart';
 import '../modules/business_registration_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -76,51 +76,97 @@ class _Step2State extends State<Step2> {
     setState(() => _isSubmitting = true);
 
     try {
-      // 1️⃣  Extract payload (fail fast if missing)
+      // 1️⃣ Extract and validate payload
       final email = widget.registrationData.email?.trim();
       final password = widget.registrationData.password?.trim();
 
-      if (email == null || email.isEmpty || password == null || password.isEmpty) {
-        _showSnackBar('Missing email or password from earlier step', isError: true);
+      print('DEBUG: Email from registration data: $email'); // Debug log
+      print('DEBUG: Password length: ${password?.length ?? 0}'); // Debug log
+
+      if (email == null || email.isEmpty) {
+        _showSnackBar('Email is missing from previous step', isError: true);
         return;
       }
 
-      // 2️⃣  Check for duplicate e-mail
-      //final signInMethods =
-      //await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
-      //if (signInMethods.isNotEmpty) {
-      //  _showSnackBar('An account with this e-mail already exists.', isError: true);
-      //  return;
-      // }
+      if (password == null || password.isEmpty) {
+        _showSnackBar('Password is missing from previous step', isError: true);
+        return;
+      }
 
-      // 3️⃣  Atomic transaction: Auth + Firestore
-      final userCredential =
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      if (password.length < 6) {
+        _showSnackBar('Password must be at least 6 characters long', isError: true);
+        return;
+      }
+
+      // 2️⃣ Validate email format before proceeding
+      if (!RegExp(r'^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$').hasMatch(email)) {
+        _showSnackBar('Invalid email format', isError: true);
+        return;
+      }
+
+      // 3️⃣ Check for duplicate email (optional but recommended)
+      try {
+        final signInMethods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+        if (signInMethods.isNotEmpty) {
+          _showSnackBar('An account with this email already exists', isError: true);
+          return;
+        }
+      } catch (e) {
+        print('DEBUG: Could not check existing email: $e');
+        // Continue anyway - the createUser call will handle this
+      }
+
+      // 4️⃣ Validate required business data
+      if (widget.registrationData.fullName?.trim().isEmpty ?? true) {
+        _showSnackBar('Full name is missing from previous step', isError: true);
+        return;
+      }
+
+      if (widget.registrationData.businessName?.trim().isEmpty ?? true) {
+        _showSnackBar('Business name is missing from previous step', isError: true);
+        return;
+      }
+
+      print('DEBUG: About to create user with email: $email'); // Debug log
+
+      // 5️⃣ Create Firebase Auth user
+      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      final uid = userCredential.user!.uid;
 
+      final uid = userCredential.user?.uid;
+      if (uid == null) {
+        _showSnackBar('Failed to create user account', isError: true);
+        return;
+      }
+
+      print('DEBUG: User created successfully with UID: $uid'); // Debug log
+
+      // 6️⃣ Prepare Firestore data
       final firestore = FirebaseFirestore.instance;
       final batch = firestore.batch();
 
-      // 3a.  users/{uid}
+      // User document
       final userDoc = firestore.collection('users').doc(uid);
-      batch.set(userDoc, {
-        'fullName': widget.registrationData.fullName,
+      final userData = {
+        'fullName': widget.registrationData.fullName?.trim() ?? '',
         'email': email,
-        'phone': widget.registrationData.phone,
+        'phone': widget.registrationData.phone?.trim() ?? '',
         'createdAt': FieldValue.serverTimestamp(),
         'role': 'business',
-      });
+      };
 
-      // 3b.  businesses/{businessId}  (deterministic id = uid)
+      print('DEBUG: User data to save: $userData'); // Debug log
+      batch.set(userDoc, userData);
+
+      // Business document
       final businessDoc = firestore.collection('businesses').doc(uid);
-      batch.set(businessDoc, {
-        'businessName': widget.registrationData.businessName,
-        'serviceType': widget.registrationData.serviceType,
-        'businessType': widget.registrationData.businessType,
-        'category': widget.registrationData.category,
+      final businessData = {
+        'businessName': widget.registrationData.businessName?.trim() ?? '',
+        'serviceType': widget.registrationData.serviceType?.trim() ?? '',
+        'businessType': widget.registrationData.businessType?.trim() ?? '',
+        'category': widget.registrationData.category?.trim() ?? '',
         'businessDescription': _businessDescController.text.trim(),
         'bizEmail': _bizemailController.text.trim(),
         'businessPhone': _phoneController.text.trim(),
@@ -129,14 +175,25 @@ class _Step2State extends State<Step2> {
         'address': _addressController.text.trim(),
         'ownerId': uid,
         'createdAt': FieldValue.serverTimestamp(),
-      });
+      };
 
+      print('DEBUG: Business data to save: $businessData'); // Debug log
+      batch.set(businessDoc, businessData);
+
+      // 7️⃣ Commit to Firestore
       await batch.commit();
+      print('DEBUG: Firestore batch committed successfully'); // Debug log
 
-      // 4️⃣  Send verification e-mail (non-blocking)
-      unawaited(userCredential.user?.sendEmailVerification());
+      // 8️⃣ Send verification email (non-blocking)
+      try {
+        await userCredential.user?.sendEmailVerification();
+        print('DEBUG: Verification email sent'); // Debug log
+      } catch (e) {
+        print('DEBUG: Failed to send verification email: $e'); // Debug log
+        // Don't fail the entire process for this
+      }
 
-      // 5️⃣  Replace navigation stack so user cannot go back to forms
+      // 9️⃣ Navigate to completion screen
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
@@ -144,32 +201,43 @@ class _Step2State extends State<Step2> {
           pageBuilder: (_, __, ___) => const Completed(),
           transitionDuration: const Duration(milliseconds: 1000),
           transitionsBuilder: (_, anim, __, child) => SlideTransition(
-            position:
-            Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(
+            position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(
               CurvedAnimation(parent: anim, curve: Curves.easeInOutExpo),
             ),
             child: child,
           ),
         ),
-            (route) => false, // clear entire stack
+            (route) => false, // Clear entire stack
       );
+
     } on FirebaseAuthException catch (e) {
+      print('DEBUG: FirebaseAuthException: ${e.code} - ${e.message}'); // Debug log
       String msg;
       switch (e.code) {
         case 'email-already-in-use':
-          msg = 'This e-mail is already in use.';
+          msg = 'This email is already registered. Please use a different email.';
           break;
         case 'weak-password':
-          msg = 'The password is too weak.';
+          msg = 'The password is too weak. Please choose a stronger password.';
           break;
         case 'invalid-email':
-          msg = 'The e-mail address is invalid.';
+          msg = 'The email address is invalid. Please check and try again.';
+          break;
+        case 'operation-not-allowed':
+          msg = 'Email/password accounts are not enabled. Please contact support.';
+          break;
+        case 'network-request-failed':
+          msg = 'Network error. Please check your internet connection and try again.';
           break;
         default:
-          msg = 'Sign-up failed: ${e.message}';
+          msg = 'Sign-up failed: ${e.message ?? 'Unknown error'}';
       }
       _showSnackBar(msg, isError: true);
+    } on FirebaseException catch (e) {
+      print('DEBUG: FirebaseException: ${e.code} - ${e.message}'); // Debug log
+      _showSnackBar('Database error: ${e.message ?? 'Unknown error'}', isError: true);
     } catch (e) {
+      print('DEBUG: Unexpected error: $e'); // Debug log
       _showSnackBar('Unexpected error: ${e.toString()}', isError: true);
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -189,6 +257,7 @@ class _Step2State extends State<Step2> {
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
+        duration: const Duration(seconds: 5), // Longer duration for error messages
       ),
     );
   }
