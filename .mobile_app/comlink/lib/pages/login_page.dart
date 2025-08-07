@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+// import 'package:google_sign_in/google_sign_in.dart'; // Commented out temporarily
 import '../components/regular_top_bar.dart';
 import './sign_up_regular.dart';
 
@@ -18,11 +18,14 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // Firebase instances
+  // Firebase Auth instance
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  // final GoogleSignIn _googleSignIn = GoogleSignIn(); // Commented out temporarily
 
+  // Loading states
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -57,6 +60,8 @@ class _LoginPageState extends State<LoginPage> {
                       _buildEmailField(),
                       const SizedBox(height: 20),
                       _buildPasswordField(),
+                      const SizedBox(height: 15),
+                      _buildForgotPasswordLink(),
                       const SizedBox(height: 30),
                       _buildSubmitButton(),
                       const SizedBox(height: 30),
@@ -109,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
       child: TextFormField(
         controller: _emailController,
         keyboardType: TextInputType.emailAddress,
-        enabled: !_isLoading,
+        autocorrect: false,
         style: const TextStyle(
           fontFamily: 'Poppins',
           fontSize: 16,
@@ -150,24 +155,35 @@ class _LoginPageState extends State<LoginPage> {
       ),
       child: TextFormField(
         controller: _passwordController,
-        obscureText: true,
-        enabled: !_isLoading,
+        obscureText: _obscurePassword,
         style: const TextStyle(
           fontFamily: 'Poppins',
           fontSize: 16,
           color: Colors.black,
           letterSpacing: 1.12,
         ),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           hintText: 'Password',
-          hintStyle: TextStyle(
+          hintStyle: const TextStyle(
             fontFamily: 'Poppins',
             fontSize: 16,
             color: Color(0xFFB8AAAA),
             letterSpacing: 1.12,
           ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscurePassword ? Icons.visibility : Icons.visibility_off,
+              color: const Color(0xFF707070),
+              size: 20,
+            ),
+            onPressed: () {
+              setState(() {
+                _obscurePassword = !_obscurePassword;
+              });
+            },
+          ),
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -182,6 +198,26 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Widget _buildForgotPasswordLink() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton(
+        onPressed: _handleForgotPassword,
+        child: const Text(
+          'Forgot Password?',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 14,
+            color: Colors.white,
+            letterSpacing: 1.12,
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSubmitButton() {
     return SizedBox(
       width: double.infinity,
@@ -189,7 +225,7 @@ class _LoginPageState extends State<LoginPage> {
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleSubmit,
         style: ElevatedButton.styleFrom(
-          backgroundColor: _isLoading ? Colors.grey : const Color(0xFFF64743),
+          backgroundColor: const Color(0xFFF64743),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(7.0),
             side: const BorderSide(color: Color(0xFF707070)),
@@ -202,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
           width: 20,
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            color: Colors.white,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
           ),
         )
             : const Text(
@@ -237,7 +273,7 @@ class _LoginPageState extends State<LoginPage> {
       width: double.infinity,
       height: 45,
       child: OutlinedButton.icon(
-        onPressed: _isLoading ? null : _handleGoogleSignIn,
+        onPressed: _isGoogleLoading ? null : _handleGoogleSignIn,
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.white,
           side: const BorderSide(color: Color(0xFF707070)),
@@ -245,7 +281,16 @@ class _LoginPageState extends State<LoginPage> {
             borderRadius: BorderRadius.circular(7.0),
           ),
         ),
-        icon: const Icon(
+        icon: _isGoogleLoading
+            ? const SizedBox(
+          height: 16,
+          width: 16,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+          ),
+        )
+            : const Icon(
           Icons.person_outline,
           size: 16,
           color: Colors.black,
@@ -291,6 +336,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  // Authentication Methods
   Future<void> _handleSubmit() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
@@ -298,29 +344,20 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       try {
-        final email = _emailController.text.trim();
-        final password = _passwordController.text;
-
-        // Sign in with Firebase Auth
-        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-          email: email,
-          password: password,
+        final credential = await _auth.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
         );
 
-        if (userCredential.user != null) {
-          print('Login successful: ${userCredential.user!.email}');
-
-          // Navigate to home screen or show success message
+        if (credential.user != null) {
+          // Login successful - navigate to home page or dashboard
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Login successful!'),
-                backgroundColor: Colors.green,
-              ),
-            );
+            _showSnackBar('Login successful!', Colors.green);
+            // Navigate to your main app screen
+            // Navigator.of(context).pushReplacementNamed('/home');
 
-            // TODO: Navigate to home screen
-            // Navigator.pushReplacementNamed(context, '/home');
+            // For now, just show success message
+            print('Login successful for user: ${credential.user!.email}');
           }
         }
       } on FirebaseAuthException catch (e) {
@@ -339,30 +376,23 @@ class _LoginPageState extends State<LoginPage> {
             errorMessage = 'This user account has been disabled.';
             break;
           case 'too-many-requests':
-            errorMessage = 'Too many failed attempts. Please try again later.';
+            errorMessage = 'Too many failed attempts. Try again later.';
+            break;
+          case 'invalid-credential':
+            errorMessage = 'The email or password is incorrect.';
             break;
           default:
             errorMessage = 'An error occurred. Please try again.';
         }
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-              backgroundColor: Colors.red,
-            ),
-          );
+          _showSnackBar(errorMessage, Colors.red);
         }
       } catch (e) {
-        print('Login error: $e');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('An unexpected error occurred. Please try again.'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          _showSnackBar('An unexpected error occurred.', Colors.red);
         }
+        print('Login error: $e');
       } finally {
         if (mounted) {
           setState(() {
@@ -375,17 +405,33 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleGoogleSignIn() async {
     setState(() {
-      _isLoading = true;
+      _isGoogleLoading = true;
     });
 
+    // Temporarily show a message that Google Sign-In needs setup
+    _showSnackBar('Google Sign-In setup in progress...', Colors.orange);
+
+    setState(() {
+      _isGoogleLoading = false;
+    });
+
+    /* TODO: Uncomment this when Google Sign-In is properly configured
     try {
+      // Create a new GoogleSignIn instance
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: [
+          'email',
+          'https://www.googleapis.com/auth/contacts.readonly',
+        ],
+      );
+
       // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
         // User canceled the sign-in
         setState(() {
-          _isLoading = false;
+          _isGoogleLoading = false;
         });
         return;
       }
@@ -393,66 +439,90 @@ class _LoginPageState extends State<LoginPage> {
       // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
+      // Check if we have the necessary tokens
+      if (googleAuth.accessToken == null || googleAuth.idToken == null) {
+        throw Exception('Failed to get authentication tokens');
+      }
+
       // Create a new credential
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Sign in to Firebase with the Google credential
-      UserCredential userCredential = await _auth.signInWithCredential(credential);
+      // Sign in to Firebase with the Google user credential
+      final userCredential = await _auth.signInWithCredential(credential);
 
-      if (userCredential.user != null) {
-        print('Google Sign-In successful: ${userCredential.user!.email}');
+      if (userCredential.user != null && mounted) {
+        _showSnackBar('Google Sign-In successful!', Colors.green);
+        // Navigate to your main app screen
+        // Navigator.of(context).pushReplacementNamed('/home');
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Google Sign-In successful!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-
-          // TODO: Navigate to home screen
-          // Navigator.pushReplacementNamed(context, '/home');
-        }
+        print('Google Sign-In successful for user: ${userCredential.user!.email}');
       }
     } on FirebaseAuthException catch (e) {
       String errorMessage;
       switch (e.code) {
         case 'account-exists-with-different-credential':
-          errorMessage = 'An account already exists with a different credential.';
+          errorMessage = 'An account already exists with a different sign-in method.';
           break;
         case 'invalid-credential':
-          errorMessage = 'The credential is invalid or expired.';
+          errorMessage = 'The credential is malformed or has expired.';
           break;
         default:
           errorMessage = 'Google Sign-In failed. Please try again.';
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar(errorMessage, Colors.red);
       }
     } catch (e) {
-      print('Google Sign-In error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Google Sign-In failed. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('Google Sign-In failed. Please try again.', Colors.red);
       }
+      print('Google Sign-In error: $e');
     } finally {
       if (mounted) {
         setState(() {
-          _isLoading = false;
+          _isGoogleLoading = false;
         });
+      }
+    }
+    */
+  }
+
+  Future<void> _handleForgotPassword() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      _showSnackBar('Please enter your email first.', Colors.orange);
+      return;
+    }
+
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      if (mounted) {
+        _showSnackBar('Password reset email sent! Check your inbox.', Colors.green);
+      }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage;
+      switch (e.code) {
+        case 'user-not-found':
+          errorMessage = 'No user found for that email.';
+          break;
+        case 'invalid-email':
+          errorMessage = 'The email address is not valid.';
+          break;
+        default:
+          errorMessage = 'Failed to send password reset email.';
+      }
+
+      if (mounted) {
+        _showSnackBar(errorMessage, Colors.red);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showSnackBar('An error occurred. Please try again.', Colors.red);
       }
     }
   }
@@ -461,6 +531,26 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const SignUpRegular(),
+      ),
+    );
+  }
+
+  void _showSnackBar(String message, Color backgroundColor) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: backgroundColor,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
     );
   }
